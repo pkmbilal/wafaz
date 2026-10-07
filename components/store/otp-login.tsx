@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useOptionalCart } from "@/components/store/cart-provider";
 import { Turnstile, type TurnstileHandle } from "@/components/store/turnstile";
 import { finishLogin, prepareOtpRequest } from "@/app/(store)/login/actions";
 import { authErrorMessage, isAlreadyLinked } from "@/lib/auth/errors";
@@ -35,6 +36,7 @@ export function OtpLogin({
   onDone,
 }: Props) {
   const router = useRouter();
+  const cart = useOptionalCart();
   const ids = useId();
   const turnstile = useRef<TurnstileHandle>(null);
 
@@ -182,6 +184,8 @@ export function OtpLogin({
         setError(result.error);
         return;
       }
+      // The guest's cart may have merged into the account's cart.
+      void cart?.reload();
       setStatus("Signed in. Taking you there…");
       router.replace(result.redirectTo);
       router.refresh();

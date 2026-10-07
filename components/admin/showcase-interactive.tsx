@@ -15,11 +15,31 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
+import { CartLineItem } from "@/components/store/cart-line-item";
+import { QuantityStepper } from "@/components/store/quantity-stepper";
+import type { CartLine } from "@/lib/cart/types";
+
+const SAMPLE_LINE: CartLine = {
+  id: "sample",
+  variantId: "sample",
+  productSlug: "sample",
+  title: "Indigo Block Print Straight Kurti",
+  size: "M",
+  colour: "Indigo",
+  pricePaise: 129_900,
+  mrpPaise: 199_900,
+  qty: 2,
+  available: 4,
+  issue: null,
+  imageKey: null,
+  imageAlt: null,
+};
 
 // Interactive primitives for the dev showcase (client-only so they can hold state).
 export function InteractiveShowcase() {
   const [range, setRange] = useState([800, 2400]);
   const [otp, setOtp] = useState("");
+  const [qty, setQty] = useState(1);
 
   return (
     <>
@@ -172,6 +192,27 @@ export function InteractiveShowcase() {
           <CarouselPrevious />
           <CarouselNext />
         </Carousel>
+      </Section>
+
+      <Section title="QuantityStepper">
+        <QuantityStepper value={qty} onChange={setQty} max={5} label="Sample kurti" />
+        <QuantityStepper value={1} onChange={() => {}} max={5} label="Disabled sample" disabled />
+      </Section>
+
+      <Section title="CartLineItem">
+        <div className="flex w-full max-w-md flex-col gap-6">
+          <CartLineItem line={SAMPLE_LINE} onQtyChange={async () => {}} onRemove={async () => {}} />
+          <CartLineItem
+            line={{ ...SAMPLE_LINE, id: "low", qty: 3, available: 1, issue: "insufficient_stock" }}
+            onQtyChange={async () => {}}
+            onRemove={async () => {}}
+          />
+          <CartLineItem
+            line={{ ...SAMPLE_LINE, id: "gone", qty: 1, available: 0, issue: "unavailable" }}
+            onQtyChange={async () => {}}
+            onRemove={async () => {}}
+          />
+        </div>
       </Section>
     </>
   );
