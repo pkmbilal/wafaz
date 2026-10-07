@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useOptionalCart } from "@/components/store/cart-provider";
 import { OtpLogin } from "@/components/store/otp-login";
 import {
   cancelAccountDeletion,
@@ -216,6 +217,7 @@ export function AccountDeletion({ requestedAt }: { requestedAt: string | null })
 
 export function SignOutButton() {
   const router = useRouter();
+  const cart = useOptionalCart();
   const [pending, startTransition] = useTransition();
 
   return (
@@ -225,6 +227,7 @@ export function SignOutButton() {
       onClick={() =>
         startTransition(async () => {
           await signOut();
+          cart?.clear();
           router.replace("/");
           router.refresh();
         })

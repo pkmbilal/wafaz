@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useTransition } from "react";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/components/store/cart-provider";
 import { ColourSwatch } from "@/components/store/colour-swatch";
 import { PriceTag } from "@/components/store/price-tag";
 import { ProductGallery } from "@/components/store/product-gallery";
@@ -19,6 +20,8 @@ type ProductViewProps = {
 export function ProductView({ product, availability }: ProductViewProps) {
   const [colour, setColour] = useState(product.colours[0]?.name ?? "");
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [adding, startAdding] = useTransition();
+  const cart = useCart();
 
   const colourVariants = product.variants.filter((v) => v.colour === colour);
   const selected = colourVariants.find((v) => v.id === variantId) ?? null;
@@ -67,15 +70,24 @@ export function ProductView({ product, availability }: ProductViewProps) {
           {product.sizeChart && <SizeChart name={product.sizeChart.name} data={product.sizeChart.data} />}
         </div>
 
-        {/* TODO(M5): wire to the server cart (lazy anonymous sign-in + add to cart). */}
+        {/* The size selector only allows in-stock sizes; the server re-checks stock on add. */}
         <div className="flex flex-col gap-2">
-          <Button size="lg" disabled className="w-full sm:max-w-sm">
+          <Button
+            size="lg"
+            disabled={!selected || adding}
+            aria-disabled={!selected || adding}
+            className="w-full sm:max-w-sm"
+            onClick={() => {
+              if (!selected) return;
+              startAdding(async () => {
+                await cart.add(selected.id, 1);
+              });
+            }}
+          >
             <ShoppingBag />
-            Add to cart
+            {adding ? "Adding…" : "Add to cart"}
           </Button>
-          <p className="text-xs text-muted-foreground">
-            {selected ? "Online ordering opens soon." : "Select a size to continue."}
-          </p>
+          {!selected && <p className="text-xs text-muted-foreground">Select a size to continue.</p>}
         </div>
       </div>
     </div>

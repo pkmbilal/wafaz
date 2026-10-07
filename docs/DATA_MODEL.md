@@ -88,7 +88,7 @@ pages          slug unique, title, body, seo_title, seo_description, is_publishe
 
 ### Cart
 ```
-carts       user_id unique → auth.users (includes anonymous users)
+carts       user_id unique → auth.users on delete cascade (includes anonymous users)
 cart_items  cart_id, variant_id, qty (check qty between 1 and 10), unique (cart_id, variant_id)
 ```
 
@@ -250,7 +250,11 @@ Customers never write directly to orders, payments or documents. All writes go t
   - Upserts and locks the `document_sequences` row, increments it, and returns the formatted number. This keeps numbering gapless.
 - **`merge_guest_into_user(anon_uid, user_id)`**
   - Service role only. Moves the guest's addresses (the account keeps its own default) and fills an empty `full_name`, then deletes the anonymous user.
-  - Merges cart lines (summing quantities, capped at 10) and reassigns the guest's orders (added with the cart and orders milestones).
+  - Merges cart lines (summing quantities, capped at 10) and reassigns the guest's orders (orders: added with the orders milestone).
+- **`cart_add_item(variant_id, qty)`** / **`cart_set_qty(item_id, qty)`**
+  - Security invoker (RLS applies). Get-or-create the caller's cart and upsert the line, capped at 10 and at available stock (`stock - reserved`). Adding to the cart never reserves stock. `cart_set_qty(…, 0)` removes the line.
+- **`cart_lines()`**
+  - Security definer, scoped to `auth.uid()`. Returns the caller's lines with product details, including lines whose variant or product is no longer sold (flagged `purchasable = false`).
 - **`set_default_address(address_id)`**
   - Security invoker (RLS applies). Clears the caller's other defaults and sets this one.
 - **`transition_order(...)`**

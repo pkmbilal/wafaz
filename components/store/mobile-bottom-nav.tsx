@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, LayoutGrid, Search, ShoppingBag, User } from "lucide-react";
 import { cn } from "cn";
+import { CartCount } from "@/components/store/cart-button";
+import { useCart } from "@/components/store/cart-provider";
 
 const ITEMS = [
   { label: "Home", href: "/", icon: Home, match: (p: string) => p === "/" },
@@ -15,6 +17,7 @@ const ITEMS = [
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const count = useCart().cart?.totals.itemCount ?? 0;
 
   return (
     <nav
@@ -34,8 +37,12 @@ export function MobileBottomNav() {
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
-                <Icon aria-hidden className="size-5" strokeWidth={active ? 2.25 : 1.75} />
+                <span className="relative">
+                  <Icon aria-hidden className="size-5" strokeWidth={active ? 2.25 : 1.75} />
+                  {href === "/cart" && <CartCount count={count} className="-top-1.5 -right-2.5" />}
+                </span>
                 {label}
+                {href === "/cart" && count > 0 && <span className="sr-only">, {count} items</span>}
               </Link>
             </li>
           );

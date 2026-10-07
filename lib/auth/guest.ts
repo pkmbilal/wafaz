@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/browser";
 
 // Lazy guest session (AGENTS.md §5.3): called on the first cart action, never on catalog pages.
 // Returns the existing session if there is one, otherwise signs in anonymously with a Turnstile token.
-// TODO(M5): call from add to cart / open cart / checkout.
+// Called by CartProvider on the first add to cart.
 export async function ensureGuestSession(captchaToken: string): Promise<{ userId: string } | { error: string }> {
   const supabase = createClient();
   const { data } = await supabase.auth.getSession();

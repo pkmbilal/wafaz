@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Search, ShoppingBag, User } from "lucide-react";
+import { Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CartButton } from "@/components/store/cart-button";
 import { MobileMenu } from "@/components/store/mobile-menu";
 import type { NavCategory } from "@/lib/catalog/queries";
 import { STORE_NAME } from "@/lib/site";
@@ -42,12 +43,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               <User />
             </Link>
           </Button>
-          {/* TODO(M5): open the CartDrawer and show the item count. */}
-          <Button asChild variant="ghost" size="icon">
-            <Link href="/cart" aria-label="Cart">
-              <ShoppingBag />
-            </Link>
-          </Button>
+          <CartButton />
         </div>
       </div>
     </header>
