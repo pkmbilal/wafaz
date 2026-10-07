@@ -176,7 +176,8 @@ refresh_token_reuse_interval = 10
 # Allow/disallow new user signups to your project.
 enable_signup = true
 # Allow/disallow anonymous sign-ins to your project.
-enable_anonymous_sign_ins = false
+# Guests get an anonymous session lazily on their first cart action (AGENTS.md §5.3).
+enable_anonymous_sign_ins = true
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
@@ -212,27 +213,31 @@ token_verifications = 30
 web3 = 30
 
 # Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
-# [auth.captcha]
-# enabled = true
-# provider = "hcaptcha"
-# secret = ""
+# Turnstile protects anonymous sign-in and OTP requests. Local dev uses Cloudflare's always-pass
+# test keys (see supabase/.env.example).
+[auth.captcha]
+enabled = true
+provider = "turnstile"
+secret = "env(TURNSTILE_SECRET_KEY)"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
 enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
-double_confirm_changes = true
+double_confirm_changes = false
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+# Must stay on: otherwise updateUser({ email }) attaches an unverified email without sending a code.
+# OTP sign-up still works, because verifying the code is the confirmation.
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
-max_frequency = "1s"
+max_frequency = "60s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+otp_expiry = 600
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -244,10 +249,19 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# Codes, not magic links: every template shows the 6-digit {{ .Token }} (AGENTS.md §5.3).
+# Production sends through Resend SMTP, configured in the Supabase dashboard.
+[auth.email.template.magic_link]
+subject = "Your Wafaz sign-in code"
+content_path = "./supabase/templates/otp.html"
+
+[auth.email.template.confirmation]
+subject = "Your Wafaz sign-in code"
+content_path = "./supabase/templates/otp.html"
+
+[auth.email.template.email_change]
+subject = "Confirm your email for Wafaz"
+content_path = "./supabase/templates/email-change.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
@@ -257,13 +271,15 @@ otp_expiry = 3600
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
-enable_signup = false
+# Phone OTP is delivered over WhatsApp by the Send SMS Hook below; no SMS provider is configured.
+enable_signup = true
 # If enabled, users need to confirm their phone number before signing in.
-enable_confirmations = false
+# Must stay on: otherwise updateUser({ phone }) attaches an unverified number without sending a code.
+enable_confirmations = true
 # Template for sending OTP to users
 template = "Your code is {{ .Code }}"
 # Controls the minimum amount of time that must pass before sending another sms otp.
-max_frequency = "5s"
+max_frequency = "60s"
 
 # Use pre-defined map of phone number to OTP for testing.
 # [auth.sms.test_otp]
@@ -276,6 +292,13 @@ max_frequency = "5s"
 # Force log out if the user has been inactive longer than the specified duration.
 # inactivity_timeout = "8h"
 
+# Phone OTPs go to app/api/auth/send-otp, which sends them through the WhatsApp authentication template.
+[auth.hook.send_sms]
+enabled = true
+# http://host.docker.internal:3000/api/auth/send-otp by default (see supabase/.env.example).
+uri = "env(SUPABASE_SEND_SMS_HOOK_URI)"
+secrets = "env(SUPABASE_SEND_SMS_HOOK_SECRET)"
+
 # This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
 # [auth.hook.before_user_created]
 # enabled = true
@@ -287,10 +310,13 @@ max_frequency = "5s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
+# Local only: the CLI turns phone login off unless an SMS provider is enabled, even with the
+# Send SMS Hook on. GoTrue sends through the hook whenever it is enabled, so Twilio is never called.
+# Production enables the phone provider in the dashboard with the hook and no SMS provider.
 [auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
+enabled = true
+account_sid = "unused-send-sms-hook"
+message_service_sid = "unused-send-sms-hook"
 # DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
 auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 

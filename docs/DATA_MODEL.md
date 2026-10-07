@@ -249,13 +249,18 @@ Customers never write directly to orders, payments or documents. All writes go t
   - Gets the fiscal year from `issued_at at time zone 'Asia/Kolkata'` (April–March).
   - Upserts and locks the `document_sequences` row, increments it, and returns the formatted number. This keeps numbering gapless.
 - **`merge_guest_into_user(anon_uid, user_id)`**
-  - Merges cart lines (summing quantities, capped at 10) and reassigns the guest's orders.
+  - Service role only. Moves the guest's addresses (the account keeps its own default) and fills an empty `full_name`, then deletes the anonymous user.
+  - Merges cart lines (summing quantities, capped at 10) and reassigns the guest's orders (added with the cart and orders milestones).
+- **`set_default_address(address_id)`**
+  - Security invoker (RLS applies). Clears the caller's other defaults and sets this one.
 - **`transition_order(...)`**
   - See §4.
 - **`check_rate_limit(key, max, window_seconds)`**
   - Returns a boolean.
 - **`refresh_product_search(product_id)`**
   - Rebuilds `products.search`. Called by triggers on `products` and `product_tags`.
+
+Profiles mirror verified contact details: an `AFTER UPDATE OF phone, email` trigger on `auth.users` copies them to `profiles` (a guest who upgrades via `updateUser` keeps their uid).
 
 **pg_cron jobs:** `expire_pending_orders()` every minute, `rate_limits` cleanup daily, and stale anonymous user cleanup daily (anonymous users older than 30 days with no orders).
 

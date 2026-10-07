@@ -97,6 +97,18 @@ export async function getStoreSettings() {
   return check(await supabase.from("public_store_settings").select("*").single());
 }
 
+export type IndianState = { code: string; name: string };
+
+// GST state codes, for address forms. Reference data, so it shares the settings tag.
+export async function getIndianStates(): Promise<IndianState[]> {
+  "use cache";
+  cacheLife("days");
+  cacheTag(cacheTags.settings);
+
+  const supabase = createPublicClient();
+  return check(await supabase.from("indian_states").select("code, name").order("name"));
+}
+
 export async function getNavCategories(): Promise<NavCategory[]> {
   "use cache";
   cacheLife("hours");

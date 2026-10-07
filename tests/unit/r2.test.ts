@@ -6,6 +6,7 @@ beforeAll(async () => {
   vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://localhost:54321");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "test-anon-key");
+  vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "test-site-key");
   vi.stubEnv("NEXT_PUBLIC_MEDIA_URL", "");
   ({ mediaUrl } = await import("@/lib/r2"));
 });

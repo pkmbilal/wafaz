@@ -205,7 +205,7 @@ An order has **three separate statuses**: `order_status`, `payment_status` and `
 ### 5.8 Security
 - **RLS:** enabled on **every** table. Customers access only their own rows.
 - **Admin:** checked via `profiles.role in ('owner','staff')` in RLS and in route guards.
-- **Service role:** the key is used only in `lib/supabase/admin.ts`, and only from webhooks, the auth hook, cron-triggered routes, admin Server Actions, the guest-merge step of login (`merge_guest_into_user`), and guest order / invoice reads **after** the `?t=` HMAC token has been verified (those reads are scoped to that one order ID). Never import it into client code.
+- **Service role:** the key is used only in `lib/supabase/admin.ts`, and only from webhooks, the auth hook, cron-triggered routes, admin Server Actions, OTP request rate limiting in the login Server Action (`check_rate_limit()`, before a session exists), the guest-merge step of login (`merge_guest_into_user`), and guest order / invoice reads **after** the `?t=` HMAC token has been verified (those reads are scoped to that one order ID). Never import it into client code.
 - **Rate limits:** apply `check_rate_limit()`:
 
   | Action | Limit |
