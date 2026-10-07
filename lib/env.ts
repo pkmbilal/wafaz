@@ -8,6 +8,8 @@ const publicSchema = z.object({
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
   // Optional until R2 is set up; seed media is served from public/seed/ meanwhile.
   NEXT_PUBLIC_MEDIA_URL: z.preprocess((v) => (v === "" ? undefined : v), z.url().optional()),
+  // Optional so builds work without Razorpay; checkout reports it as unavailable until it is set.
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: z.preprocess((v) => (v === "" ? undefined : v), z.string().startsWith("rzp_").optional()),
 });
 
 export const publicEnv = publicSchema.parse({
@@ -16,4 +18,5 @@ export const publicEnv = publicSchema.parse({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   NEXT_PUBLIC_MEDIA_URL: process.env.NEXT_PUBLIC_MEDIA_URL,
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
 });

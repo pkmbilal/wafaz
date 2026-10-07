@@ -1,0 +1,25 @@
+{
+  "entity": "event",
+  "account_id": "acc_TestAccount01",
+  "event": "payment.captured",
+  "contains": ["payment"],
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "{{PAYMENT_ID}}",
+        "entity": "payment",
+        "amount": "{{AMOUNT}}",
+        "currency": "INR",
+        "status": "captured",
+        "order_id": "{{RZP_ORDER_ID}}",
+        "method": "upi",
+        "captured": true,
+        "email": "buyer@example.com",
+        "contact": "+919876543210",
+        "error_description": null,
+        "created_at": 1791446400
+      }
+    }
+  },
+  "created_at": 1791446400
+}

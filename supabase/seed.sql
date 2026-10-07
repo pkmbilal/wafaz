@@ -239,3 +239,12 @@ insert into public.pages (slug, title, body, is_published) values
   ('return-refund-policy', 'Return & Refund Policy', 'TODO(owner): return window, conditions, refund timelines.', true),
   ('grievance-officer', 'Grievance Officer', 'TODO(owner): grievance officer name, contact and response timeline.', true)
 on conflict (slug) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Test coupons (dev only)
+-- ---------------------------------------------------------------------------
+insert into public.coupons (code, kind, value, max_discount_paise, min_cart_paise, per_user_limit, first_order_only)
+values
+  ('WELCOME10', 'percent', 10, 50000, 0, 1, true),
+  ('FLAT200', 'flat', 20000, null, 199900, null, false)
+on conflict (code) do nothing;

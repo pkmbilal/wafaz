@@ -55,7 +55,7 @@ export function CartDrawer() {
               ))}
             </ul>
             <div className="flex flex-col gap-3 border-t border-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-              <CartSummary cart={cart} />
+              <CartSummary cart={cart} onNavigate={close} />
               <Button asChild variant="outline" className="w-full">
                 <Link href="/cart" onClick={close}>
                   View cart

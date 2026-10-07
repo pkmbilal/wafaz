@@ -129,7 +129,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   async function add(variantId: string, qty = 1): Promise<boolean> {
     try {
       if (!(await ensureSession())) return false;
-      const result = await addToCart({ variantId, qty });
+      let result = await addToCart({ variantId, qty });
+      if (!result.ok && result.code === "stale_session") {
+        // Drop the dead session and start a fresh guest cart, once.
+        await createClient().auth.signOut({ scope: "local" });
+        if (!(await ensureSession())) return false;
+        result = await addToCart({ variantId, qty });
+      }
       apply(result);
       if (result.ok) {
         announce(`Added to cart. ${result.cart.totals.itemCount} items in your cart.`);
