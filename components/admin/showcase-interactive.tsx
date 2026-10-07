@@ -5,6 +5,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -13,6 +19,7 @@ import { Slider } from "@/components/ui/slider";
 // Interactive primitives for the dev showcase (client-only so they can hold state).
 export function InteractiveShowcase() {
   const [range, setRange] = useState([800, 2400]);
+  const [otp, setOtp] = useState("");
 
   return (
     <>
@@ -27,6 +34,68 @@ export function InteractiveShowcase() {
             <AccordionContent>Gentle hand wash in cold water.</AccordionContent>
           </AccordionItem>
         </Accordion>
+      </Section>
+
+      <Section title="Input / Label">
+        <div className="flex w-full max-w-sm flex-col gap-2">
+          <Label htmlFor="showcase-input">Email address</Label>
+          <Input id="showcase-input" type="email" placeholder="you@example.com" />
+        </div>
+        <div className="flex w-full max-w-sm flex-col gap-2">
+          <Label htmlFor="showcase-invalid">Invalid</Label>
+          <Input id="showcase-invalid" aria-invalid defaultValue="12345" />
+        </div>
+        <div className="flex w-full max-w-sm flex-col gap-2">
+          <Label htmlFor="showcase-disabled">Disabled</Label>
+          <Input id="showcase-disabled" disabled defaultValue="Read only" />
+        </div>
+      </Section>
+
+      <Section title="Input OTP">
+        <InputOTP maxLength={6} value={otp} onChange={setOtp} aria-label="6-digit code">
+          <InputOTPGroup>
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <InputOTPSlot key={i} index={i} />
+            ))}
+          </InputOTPGroup>
+        </InputOTP>
+      </Section>
+
+      <Section title="Tabs">
+        <Tabs defaultValue="whatsapp" className="w-full max-w-sm">
+          <TabsList className="w-full">
+            <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+            <TabsTrigger value="email">Email</TabsTrigger>
+          </TabsList>
+          <TabsContent value="whatsapp">Default variant.</TabsContent>
+          <TabsContent value="email">Email tab.</TabsContent>
+        </Tabs>
+        <Tabs defaultValue="details" className="w-full max-w-sm">
+          <TabsList variant="line" className="w-full">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="care">Care</TabsTrigger>
+          </TabsList>
+          <TabsContent value="details">Line variant.</TabsContent>
+          <TabsContent value="care">Care tab.</TabsContent>
+        </Tabs>
+      </Section>
+
+      <Section title="Switch / Toast">
+        <label className="flex min-h-touch items-center gap-3 text-sm">
+          <Switch defaultChecked /> On
+        </label>
+        <label className="flex min-h-touch items-center gap-3 text-sm">
+          <Switch /> Off
+        </label>
+        <label className="flex min-h-touch items-center gap-3 text-sm">
+          <Switch size="sm" /> Small
+        </label>
+        <Button variant="outline" onClick={() => toast.success("Added to cart")}>
+          Success toast
+        </Button>
+        <Button variant="outline" onClick={() => toast.error("Couldn't save")}>
+          Error toast
+        </Button>
       </Section>
 
       <Section title="Checkbox">

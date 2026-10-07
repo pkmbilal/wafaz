@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/pagination";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Toaster } from "@/components/ui/sonner";
 
 const variants = ["default", "festive", "outline", "secondary", "ghost", "destructive", "link"] as const;
 const sizes = ["sm", "default", "lg"] as const;
@@ -121,6 +122,7 @@ export default function ComponentShowcasePage() {
       </section>
 
       <InteractiveShowcase />
+      <Toaster />
     </main>
   );
 }

@@ -3,6 +3,7 @@ import { Footer } from "@/components/store/footer";
 import { Header } from "@/components/store/header";
 import { MobileBottomNav } from "@/components/store/mobile-bottom-nav";
 import { WhatsAppButton } from "@/components/store/whatsapp-button";
+import { Toaster } from "@/components/ui/sonner";
 import { getNavCategories, getStoreSettings } from "@/lib/catalog/queries";
 
 // Storefront chrome. Everything here is cached catalog data: no session reads.
@@ -25,6 +26,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <Footer settings={settings} categories={categories} />
       <WhatsAppButton phone={settings.support_phone} />
       <MobileBottomNav />
+      <Toaster />
     </div>
   );
 }
