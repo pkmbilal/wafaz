@@ -1,9 +1,31 @@
 import { notFound } from "next/navigation";
 import { Heart } from "lucide-react";
+import { InteractiveShowcase } from "@/components/admin/showcase-interactive";
+import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const variants = ["default", "festive", "outline", "secondary", "ghost", "destructive", "link"] as const;
 const sizes = ["sm", "default", "lg"] as const;
+const badgeVariants = ["default", "secondary", "outline", "destructive", "new", "sale", "soldout"] as const;
 
 // Dev-only showcase of every UI primitive and variant (AGENTS.md §6).
 export default function ComponentShowcasePage() {
@@ -34,6 +56,71 @@ export default function ComponentShowcasePage() {
           <Button disabled>Disabled</Button>
         </div>
       </section>
+
+      <section className="space-y-4">
+        <h2 className="text-2xl font-semibold">Badge</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          {badgeVariants.map((v) => (
+            <Badge key={v} variant={v}>
+              {v}
+            </Badge>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-2xl font-semibold">Breadcrumb / Separator / Skeleton</h2>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">Kurtis</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Indigo Block Print Kurti</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Separator />
+        <div className="flex gap-3">
+          <Skeleton className="aspect-4/5 w-32" />
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-2xl font-semibold">Pagination</h2>
+        <Pagination className="justify-start">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#" isActive>
+                2
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </section>
+
+      <InteractiveShowcase />
     </main>
   );
 }

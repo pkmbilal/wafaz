@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { publicEnv } from "@/lib/env";
+import { STORE_NAME, STORE_TAGLINE } from "@/lib/site";
 import "./globals.css";
 
 // TODO(owner): placeholder fonts. Swap the display serif / body sans here; the CSS
@@ -18,12 +19,12 @@ const body = Inter({
   display: "swap",
 });
 
-// TODO(owner): store name and default description.
+// TODO(owner): default description.
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: "Wafaz — Indian Ethnic Wear",
-    template: "%s | Wafaz",
+    default: `${STORE_NAME} — ${STORE_TAGLINE}`,
+    template: `%s | ${STORE_NAME}`,
   },
   description: "Kurtis, kurti sets, co-ords and kaftans, shipped across India.",
 };
