@@ -1,0 +1,24 @@
+{
+  "entity": "event",
+  "account_id": "acc_TestAccount01",
+  "event": "payment.failed",
+  "contains": ["payment"],
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "{{PAYMENT_ID}}",
+        "entity": "payment",
+        "amount": "{{AMOUNT}}",
+        "currency": "INR",
+        "status": "failed",
+        "order_id": "{{RZP_ORDER_ID}}",
+        "method": "card",
+        "captured": false,
+        "error_code": "BAD_REQUEST_ERROR",
+        "error_description": "Payment failed because the card was declined",
+        "created_at": 1791446400
+      }
+    }
+  },
+  "created_at": 1791446400
+}

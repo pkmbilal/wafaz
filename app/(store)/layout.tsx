@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AnnouncementBar } from "@/components/store/announcement-bar";
 import { CartProvider } from "@/components/store/cart-provider";
 import { Footer } from "@/components/store/footer";
@@ -28,7 +29,10 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         </main>
         <Footer settings={settings} categories={categories} />
         <WhatsAppButton phone={settings.support_phone} />
-        <MobileBottomNav />
+        {/* usePathname() on routes without static params (e.g. /orders/[id]) needs a boundary. */}
+        <Suspense fallback={null}>
+          <MobileBottomNav />
+        </Suspense>
         <Toaster />
       </div>
     </CartProvider>

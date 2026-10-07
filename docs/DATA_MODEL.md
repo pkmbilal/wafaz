@@ -121,14 +121,15 @@ orders
   coupon_id null, coupon_code null,
   subtotal_paise, discount_paise, shipping_paise, total_paise,   -- all GST-inclusive
     -- check (total_paise >= 100): Razorpay can't take a zero amount
-  taxable_total_paise, cgst_paise, sgst_paise, igst_paise,
+  taxable_total_paise, cgst_paise, sgst_paise, igst_paise,   -- include the shipping line
+  shipping_gst_rate_bps, shipping_taxable_paise,
   place_of_supply_code → indian_states,
   shipping_address jsonb (snapshot), billing_address jsonb (snapshot),
   total_weight_grams, shipping_zone_id
 
 order_items (immutable snapshot)
-  order_id, variant_id, product_title, sku, size, colour, image_key, hsn_code,
-  unit_price_paise, qty, line_gross_paise, line_discount_paise, line_net_paise,
+  order_id, variant_id, product_id, product_title, product_slug, sku, size, colour, image_key, hsn_code,
+  unit_price_paise, mrp_paise, qty, line_gross_paise, line_discount_paise, line_net_paise,
   gst_rate_bps, taxable_paise, cgst_paise, sgst_paise, igst_paise,
   refunded_qty int default 0
 
@@ -255,6 +256,14 @@ Customers never write directly to orders, payments or documents. All writes go t
   - Security invoker (RLS applies). Get-or-create the caller's cart and upsert the line, capped at 10 and at available stock (`stock - reserved`). Adding to the cart never reserves stock. `cart_set_qty(…, 0)` removes the line.
 - **`cart_lines()`**
   - Security definer, scoped to `auth.uid()`. Returns the caller's lines with product details, including lines whose variant or product is no longer sold (flagged `purchasable = false`).
+- **`order_payment_target(order_id)`** / **`record_razorpay_order(order_id, rzp_order_id)`**
+  - Called as the customer from `app/api/razorpay/order`. The first returns the amount to charge (the DB total) and any Razorpay order to reuse; the second records the `payments` row.
+- **`mark_payment_failed(...)`**, **`record_auto_refund(...)`**
+  - Webhook helpers: `payment.failed` → `payment_status = failed` (a later success still commits); the late-payment refund row (no credit note).
+- **`coupon_for_checkout(code, email, phone)`**, **`checkout_tax_settings()`**
+  - Read-only inputs for the checkout preview in `lib/pricing.ts` (coupon rules and this customer's usage; seller state, slab basis, shipping tax rate).
+- **`check_my_rate_limit(scope, max, window_seconds)`**
+  - `check_rate_limit` keyed to `auth.uid()`, for signed-in callers (order create, coupon apply). `check_rate_limit` itself is service-role only.
 - **`set_default_address(address_id)`**
   - Security invoker (RLS applies). Clears the caller's other defaults and sets this one.
 - **`transition_order(...)`**

@@ -11,7 +11,7 @@ import { addToCartSchema, cartItemIdSchema, MAX_LINE_QTY, setCartQtySchema } fro
 
 export type CartActionResult =
   | { ok: true; cart: CartSnapshot; notice?: string }
-  | { ok: false; error: string; cart?: CartSnapshot };
+  | { ok: false; error: string; cart?: CartSnapshot; code?: "stale_session" };
 
 const GENERIC_ERROR = "Couldn't update your cart. Please try again.";
 
@@ -35,6 +35,8 @@ export async function addToCart(input: unknown): Promise<CartActionResult> {
     .rpc("cart_add_item", { p_variant_id: parsed.data.variantId, p_qty: parsed.data.qty })
     .single();
   if (error) {
+    // The session's user no longer exists (e.g. a guest removed by the 30-day cleanup).
+    if (error.code === "23503") return { ok: false, error: GENERIC_ERROR, code: "stale_session" };
     const unavailable = error.code === "P0002";
     return {
       ok: false,

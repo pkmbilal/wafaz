@@ -1,9 +1,10 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatInr } from "@/lib/format";
 import type { CartSnapshot } from "@/lib/cart/types";
 
 // Totals and the checkout call to action, shared by the cart drawer and the cart page.
-export function CartSummary({ cart }: { cart: CartSnapshot }) {
+export function CartSummary({ cart, onNavigate }: { cart: CartSnapshot; onNavigate?: () => void }) {
   const { totals } = cart;
 
   return (
@@ -32,11 +33,17 @@ export function CartSummary({ cart }: { cart: CartSnapshot }) {
       {cart.hasIssues && (
         <p className="text-xs font-medium text-destructive">Update the highlighted items to continue.</p>
       )}
-      {/* TODO(M6): link to /checkout once checkout exists. */}
-      <Button size="lg" disabled className="w-full">
-        Checkout
-      </Button>
-      <p className="text-center text-xs text-muted-foreground">Online ordering opens soon.</p>
+      {cart.hasIssues || cart.lines.length === 0 ? (
+        <Button size="lg" disabled className="w-full">
+          Checkout
+        </Button>
+      ) : (
+        <Button asChild size="lg" className="w-full">
+          <Link href="/checkout" onClick={onNavigate}>
+            Checkout
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }

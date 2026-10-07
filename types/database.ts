@@ -348,6 +348,132 @@ export type Database = {
         };
         Relationships: [];
       };
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string;
+          created_at: string;
+          email_norm: string | null;
+          id: string;
+          order_id: string;
+          phone_e164: string | null;
+          updated_at: string;
+          user_id: string | null;
+        };
+        Insert: {
+          coupon_id: string;
+          created_at?: string;
+          email_norm?: string | null;
+          id?: string;
+          order_id: string;
+          phone_e164?: string | null;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          coupon_id?: string;
+          created_at?: string;
+          email_norm?: string | null;
+          id?: string;
+          order_id?: string;
+          phone_e164?: string | null;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey";
+            columns: ["coupon_id"];
+            isOneToOne: false;
+            referencedRelation: "coupons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "coupon_redemptions_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: true;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      coupons: {
+        Row: {
+          code: string;
+          created_at: string;
+          ends_at: string | null;
+          first_order_only: boolean;
+          id: string;
+          is_active: boolean;
+          kind: string;
+          max_discount_paise: number | null;
+          max_uses: number | null;
+          min_cart_paise: number;
+          per_user_limit: number | null;
+          starts_at: string | null;
+          updated_at: string;
+          used_count: number;
+          value: number;
+        };
+        Insert: {
+          code: string;
+          created_at?: string;
+          ends_at?: string | null;
+          first_order_only?: boolean;
+          id?: string;
+          is_active?: boolean;
+          kind: string;
+          max_discount_paise?: number | null;
+          max_uses?: number | null;
+          min_cart_paise?: number;
+          per_user_limit?: number | null;
+          starts_at?: string | null;
+          updated_at?: string;
+          used_count?: number;
+          value: number;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          ends_at?: string | null;
+          first_order_only?: boolean;
+          id?: string;
+          is_active?: boolean;
+          kind?: string;
+          max_discount_paise?: number | null;
+          max_uses?: number | null;
+          min_cart_paise?: number;
+          per_user_limit?: number | null;
+          starts_at?: string | null;
+          updated_at?: string;
+          used_count?: number;
+          value?: number;
+        };
+        Relationships: [];
+      };
+      document_sequences: {
+        Row: {
+          created_at: string;
+          doc_type: string;
+          fiscal_year: string;
+          last_value: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          doc_type: string;
+          fiscal_year: string;
+          last_value: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          doc_type?: string;
+          fiscal_year?: string;
+          last_value?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       indian_states: {
         Row: {
           code: string;
@@ -368,6 +494,337 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      invoices: {
+        Row: {
+          buyer_snapshot: NonNullable<Json>;
+          created_at: string;
+          fiscal_year: string;
+          id: string;
+          issued_at: string;
+          lines: NonNullable<Json>;
+          number: string;
+          order_id: string;
+          place_of_supply_code: string;
+          seller_snapshot: NonNullable<Json>;
+          totals: NonNullable<Json>;
+          updated_at: string;
+        };
+        Insert: {
+          buyer_snapshot: NonNullable<Json>;
+          created_at?: string;
+          fiscal_year: string;
+          id?: string;
+          issued_at?: string;
+          lines: NonNullable<Json>;
+          number: string;
+          order_id: string;
+          place_of_supply_code: string;
+          seller_snapshot: NonNullable<Json>;
+          totals: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Update: {
+          buyer_snapshot?: NonNullable<Json>;
+          created_at?: string;
+          fiscal_year?: string;
+          id?: string;
+          issued_at?: string;
+          lines?: NonNullable<Json>;
+          number?: string;
+          order_id?: string;
+          place_of_supply_code?: string;
+          seller_snapshot?: NonNullable<Json>;
+          totals?: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: true;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "invoices_place_of_supply_code_fkey";
+            columns: ["place_of_supply_code"];
+            isOneToOne: false;
+            referencedRelation: "indian_states";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
+      order_events: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          field: string;
+          from_value: string | null;
+          id: string;
+          note: string | null;
+          order_id: string;
+          to_value: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          field: string;
+          from_value?: string | null;
+          id?: string;
+          note?: string | null;
+          order_id: string;
+          to_value?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          field?: string;
+          from_value?: string | null;
+          id?: string;
+          note?: string | null;
+          order_id?: string;
+          to_value?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      order_items: {
+        Row: {
+          cgst_paise: number;
+          colour: string;
+          created_at: string;
+          gst_rate_bps: number;
+          hsn_code: string;
+          id: string;
+          igst_paise: number;
+          image_key: string | null;
+          line_discount_paise: number;
+          line_gross_paise: number;
+          line_net_paise: number;
+          mrp_paise: number;
+          order_id: string;
+          product_id: string;
+          product_slug: string;
+          product_title: string;
+          qty: number;
+          refunded_qty: number;
+          sgst_paise: number;
+          size: string;
+          sku: string;
+          taxable_paise: number;
+          unit_price_paise: number;
+          updated_at: string;
+          variant_id: string;
+        };
+        Insert: {
+          cgst_paise?: number;
+          colour: string;
+          created_at?: string;
+          gst_rate_bps: number;
+          hsn_code: string;
+          id?: string;
+          igst_paise?: number;
+          image_key?: string | null;
+          line_discount_paise?: number;
+          line_gross_paise: number;
+          line_net_paise: number;
+          mrp_paise: number;
+          order_id: string;
+          product_id: string;
+          product_slug: string;
+          product_title: string;
+          qty: number;
+          refunded_qty?: number;
+          sgst_paise?: number;
+          size: string;
+          sku: string;
+          taxable_paise: number;
+          unit_price_paise: number;
+          updated_at?: string;
+          variant_id: string;
+        };
+        Update: {
+          cgst_paise?: number;
+          colour?: string;
+          created_at?: string;
+          gst_rate_bps?: number;
+          hsn_code?: string;
+          id?: string;
+          igst_paise?: number;
+          image_key?: string | null;
+          line_discount_paise?: number;
+          line_gross_paise?: number;
+          line_net_paise?: number;
+          mrp_paise?: number;
+          order_id?: string;
+          product_id?: string;
+          product_slug?: string;
+          product_title?: string;
+          qty?: number;
+          refunded_qty?: number;
+          sgst_paise?: number;
+          size?: string;
+          sku?: string;
+          taxable_paise?: number;
+          unit_price_paise?: number;
+          updated_at?: string;
+          variant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "order_items_variant_id_fkey";
+            columns: ["variant_id"];
+            isOneToOne: false;
+            referencedRelation: "product_variants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      orders: {
+        Row: {
+          attention_reason: string | null;
+          billing_address: NonNullable<Json>;
+          cgst_paise: number;
+          coupon_code: string | null;
+          coupon_id: string | null;
+          created_at: string;
+          discount_paise: number;
+          email: string;
+          expires_at: string | null;
+          fulfillment_status: string;
+          id: string;
+          igst_paise: number;
+          needs_attention: boolean;
+          number: string;
+          order_status: string;
+          payment_status: string;
+          phone: string;
+          place_of_supply_code: string;
+          sgst_paise: number;
+          shipping_address: NonNullable<Json>;
+          shipping_gst_rate_bps: number;
+          shipping_paise: number;
+          shipping_taxable_paise: number;
+          shipping_zone_id: string | null;
+          subtotal_paise: number;
+          taxable_total_paise: number;
+          total_paise: number;
+          total_weight_grams: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          attention_reason?: string | null;
+          billing_address: NonNullable<Json>;
+          cgst_paise?: number;
+          coupon_code?: string | null;
+          coupon_id?: string | null;
+          created_at?: string;
+          discount_paise?: number;
+          email: string;
+          expires_at?: string | null;
+          fulfillment_status?: string;
+          id?: string;
+          igst_paise?: number;
+          needs_attention?: boolean;
+          number?: string;
+          order_status?: string;
+          payment_status?: string;
+          phone: string;
+          place_of_supply_code: string;
+          sgst_paise?: number;
+          shipping_address: NonNullable<Json>;
+          shipping_gst_rate_bps?: number;
+          shipping_paise?: number;
+          shipping_taxable_paise?: number;
+          shipping_zone_id?: string | null;
+          subtotal_paise: number;
+          taxable_total_paise: number;
+          total_paise: number;
+          total_weight_grams: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          attention_reason?: string | null;
+          billing_address?: NonNullable<Json>;
+          cgst_paise?: number;
+          coupon_code?: string | null;
+          coupon_id?: string | null;
+          created_at?: string;
+          discount_paise?: number;
+          email?: string;
+          expires_at?: string | null;
+          fulfillment_status?: string;
+          id?: string;
+          igst_paise?: number;
+          needs_attention?: boolean;
+          number?: string;
+          order_status?: string;
+          payment_status?: string;
+          phone?: string;
+          place_of_supply_code?: string;
+          sgst_paise?: number;
+          shipping_address?: NonNullable<Json>;
+          shipping_gst_rate_bps?: number;
+          shipping_paise?: number;
+          shipping_taxable_paise?: number;
+          shipping_zone_id?: string | null;
+          subtotal_paise?: number;
+          taxable_total_paise?: number;
+          total_paise?: number;
+          total_weight_grams?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "orders_coupon_id_fkey";
+            columns: ["coupon_id"];
+            isOneToOne: false;
+            referencedRelation: "coupons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orders_place_of_supply_code_fkey";
+            columns: ["place_of_supply_code"];
+            isOneToOne: false;
+            referencedRelation: "indian_states";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "orders_shipping_zone_id_fkey";
+            columns: ["shipping_zone_id"];
+            isOneToOne: false;
+            referencedRelation: "shipping_zones";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       pages: {
         Row: {
@@ -404,6 +861,53 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      payments: {
+        Row: {
+          amount_paise: number;
+          created_at: string;
+          id: string;
+          method: string | null;
+          order_id: string;
+          raw: Json | null;
+          razorpay_order_id: string;
+          razorpay_payment_id: string | null;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount_paise: number;
+          created_at?: string;
+          id?: string;
+          method?: string | null;
+          order_id: string;
+          raw?: Json | null;
+          razorpay_order_id: string;
+          razorpay_payment_id?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_paise?: number;
+          created_at?: string;
+          id?: string;
+          method?: string | null;
+          order_id?: string;
+          raw?: Json | null;
+          razorpay_order_id?: string;
+          razorpay_payment_id?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payments_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       product_media: {
         Row: {
@@ -679,6 +1183,60 @@ export type Database = {
         };
         Relationships: [];
       };
+      refunds: {
+        Row: {
+          amount_paise: number;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          order_id: string;
+          payment_id: string;
+          razorpay_refund_id: string | null;
+          reason: string;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount_paise: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          order_id: string;
+          payment_id: string;
+          razorpay_refund_id?: string | null;
+          reason: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_paise?: number;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          order_id?: string;
+          payment_id?: string;
+          razorpay_refund_id?: string | null;
+          reason?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "refunds_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "refunds_payment_id_fkey";
+            columns: ["payment_id"];
+            isOneToOne: false;
+            referencedRelation: "payments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       shipping_zones: {
         Row: {
           base_paise: number;
@@ -891,6 +1449,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      webhook_events: {
+        Row: {
+          attempts: number;
+          created_at: string;
+          error: string | null;
+          event_id: string;
+          event_type: string;
+          id: string;
+          payload: NonNullable<Json>;
+          processed_at: string | null;
+          provider: string;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          attempts?: number;
+          created_at?: string;
+          error?: string | null;
+          event_id: string;
+          event_type: string;
+          id?: string;
+          payload: NonNullable<Json>;
+          processed_at?: string | null;
+          provider?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          attempts?: number;
+          created_at?: string;
+          error?: string | null;
+          event_id?: string;
+          event_type?: string;
+          id?: string;
+          payload?: NonNullable<Json>;
+          processed_at?: string | null;
+          provider?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       public_store_settings: {
@@ -982,16 +1582,134 @@ export type Database = {
           total_count: number;
         }[];
       };
+      check_my_rate_limit: {
+        Args: { p_max: number; p_scope: string; p_window_seconds: number };
+        Returns: boolean;
+      };
       check_rate_limit: {
         Args: { p_key: string; p_max: number; p_window_seconds: number };
         Returns: boolean;
+      };
+      checkout_tax_settings: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          shipping_tax_rate_bps: number;
+          state_code: string;
+          tax_slab_basis: string;
+        }[];
+      };
+      commit_order_payment: {
+        Args: {
+          p_amount_paise: number;
+          p_method?: string;
+          p_order_id: string;
+          p_raw?: Json;
+          p_razorpay_order_id: string;
+          p_razorpay_payment_id: string;
+        };
+        Returns: string;
+      };
+      coupon_for_checkout: {
+        Args: { p_code: string; p_email: string; p_phone: string };
+        Returns: {
+          code: string;
+          customer_uses: number;
+          ends_at: string;
+          exhausted: boolean;
+          first_order_only: boolean;
+          has_paid_order: boolean;
+          id: string;
+          is_active: boolean;
+          kind: string;
+          max_discount_paise: number;
+          min_cart_paise: number;
+          per_user_limit: number;
+          starts_at: string;
+          value: number;
+        }[];
+      };
+      create_order_from_cart: {
+        Args: {
+          p_address: Json;
+          p_coupon_code?: string;
+          p_email: string;
+          p_phone: string;
+        };
+        Returns: {
+          order_id: string;
+          order_number: string;
+          total_paise: number;
+        }[];
+      };
+      expire_pending_orders: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+      late_payment_commit: {
+        Args: {
+          p_amount_paise: number;
+          p_method?: string;
+          p_order_id: string;
+          p_raw?: Json;
+          p_razorpay_order_id: string;
+          p_razorpay_payment_id: string;
+        };
+        Returns: boolean;
+      };
+      mark_payment_failed: {
+        Args: {
+          p_order_id: string;
+          p_raw?: Json;
+          p_razorpay_order_id: string;
+          p_razorpay_payment_id: string;
+        };
+        Returns: undefined;
       };
       merge_guest_into_user: {
         Args: { p_anon_uid: string; p_user_id: string };
         Returns: undefined;
       };
+      next_document_number: {
+        Args: { p_doc_type: string; p_issued_at: string };
+        Returns: string;
+      };
+      order_payment_target: {
+        Args: { p_order_id: string };
+        Returns: {
+          email: string;
+          order_number: string;
+          phone: string;
+          razorpay_order_id: string;
+          total_paise: number;
+        }[];
+      };
+      record_auto_refund: {
+        Args: {
+          p_amount_paise: number;
+          p_order_id: string;
+          p_razorpay_payment_id: string;
+          p_razorpay_refund_id: string;
+          p_status: string;
+        };
+        Returns: undefined;
+      };
+      record_razorpay_order: {
+        Args: { p_order_id: string; p_razorpay_order_id: string };
+        Returns: undefined;
+      };
+      reserve_stock: { Args: { p_order_id: string }; Returns: undefined };
       set_default_address: {
         Args: { p_address_id: string };
+        Returns: undefined;
+      };
+      transition_order: {
+        Args: {
+          p_actor_id?: string;
+          p_field: string;
+          p_note?: string;
+          p_order_id: string;
+          p_to_value: string;
+        };
         Returns: undefined;
       };
     };
