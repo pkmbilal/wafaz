@@ -739,6 +739,43 @@ export type Database = {
       }
     }
     Functions: {
+      catalog_facets: {
+        Args: {
+          p_category_slug?: string
+          p_collection_slug?: string
+          p_query?: string
+        }
+        Returns: Json
+      }
+      catalog_products: {
+        Args: {
+          p_category_slug?: string
+          p_collection_slug?: string
+          p_colours?: string[]
+          p_fabrics?: string[]
+          p_limit?: number
+          p_max_paise?: number
+          p_min_paise?: number
+          p_offset?: number
+          p_query?: string
+          p_sizes?: string[]
+          p_sort?: string
+        }
+        Returns: {
+          colours: Json
+          fabric: string
+          id: string
+          image_alt: string
+          image_key: string
+          in_stock: boolean
+          mrp_paise: number
+          price_paise: number
+          published_at: string
+          slug: string
+          title: string
+          total_count: number
+        }[]
+      }
       check_rate_limit: {
         Args: { p_key: string; p_max: number; p_window_seconds: number }
         Returns: boolean
