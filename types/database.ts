@@ -1700,6 +1700,10 @@ export type Database = {
       };
     };
     Functions: {
+      admin_adjust_stock: {
+        Args: { p_delta: number; p_variant_id: string };
+        Returns: number;
+      };
       admin_low_stock: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -1711,6 +1715,26 @@ export type Database = {
           sku: string;
           variant_id: string;
         }[];
+      };
+      admin_reorder_media: {
+        Args: { p_media_ids: string[]; p_product_id: string };
+        Returns: undefined;
+      };
+      admin_save_variants: {
+        Args: { p_product_id: string; p_variants: Json };
+        Returns: undefined;
+      };
+      admin_set_collection_products: {
+        Args: { p_collection_id: string; p_product_ids: string[] };
+        Returns: undefined;
+      };
+      admin_set_product_collections: {
+        Args: { p_collection_ids: string[]; p_product_id: string };
+        Returns: undefined;
+      };
+      admin_set_product_tags: {
+        Args: { p_product_id: string; p_tag_ids: string[] };
+        Returns: undefined;
       };
       cart_add_item: {
         Args: { p_qty: number; p_variant_id: string };

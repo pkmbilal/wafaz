@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -17,9 +16,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
+import { useAction } from "@/components/admin/use-action";
 import { QuantityStepper } from "@/components/store/quantity-stepper";
 import {
-  type ActionResult,
   failStuckRefund,
   markDelivered,
   markPacked,
@@ -49,22 +49,6 @@ export type OrderActionsProps = {
   shippingRefunded: boolean;
   items: { id: string; title: string; sku: string; qty: number; refundedQty: number }[];
 };
-
-function useAction() {
-  const [pending, startTransition] = useTransition();
-  function run(action: () => Promise<ActionResult>, success: string, onDone?: () => void) {
-    startTransition(async () => {
-      const result = await action();
-      if (result.ok) {
-        toast.success(result.message ?? success);
-        onDone?.();
-      } else {
-        toast.error(result.error);
-      }
-    });
-  }
-  return { pending, run };
-}
 
 export function OrderActions(p: OrderActionsProps) {
   const { pending, run } = useAction();
@@ -191,45 +175,6 @@ function ShipDialog({ orderId }: { orderId: string }) {
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function ConfirmDialog({
-  trigger,
-  title,
-  description,
-  confirm,
-  onConfirm,
-  success,
-  variant = "default",
-}: {
-  trigger: string;
-  title: string;
-  description: string;
-  confirm: string;
-  onConfirm: () => Promise<ActionResult>;
-  success: string;
-  variant?: "default" | "outline";
-}) {
-  const [open, setOpen] = useState(false);
-  const { pending, run } = useAction();
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant={variant}>{trigger}</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button disabled={pending} onClick={() => run(onConfirm, success, () => setOpen(false))}>
-            {pending ? "Saving…" : confirm}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

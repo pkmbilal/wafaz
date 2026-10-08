@@ -97,6 +97,7 @@ export default async function AdminDashboardPage() {
             {d.lowStock.map((v) => (
               <Row
                 key={v.variantId}
+                href={`/admin/products/${v.productId}`}
                 title={`${v.productTitle} · ${v.colour} / ${v.size}`}
                 detail={`${v.sku} · ${v.available} left`}
               />

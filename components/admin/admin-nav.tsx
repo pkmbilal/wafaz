@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Store } from "lucide-react";
+import { FolderTree, LayoutDashboard, Package, Shirt, Store } from "lucide-react";
 import { cn } from "cn";
 import { STORE_NAME } from "@/lib/site";
 
 const ITEMS = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Orders", href: "/admin/orders", icon: Package },
+  { label: "Products", href: "/admin/products", icon: Shirt },
+  { label: "Catalog", href: "/admin/catalog", icon: FolderTree },
 ] as const;
 
 export function AdminNav() {
