@@ -21,6 +21,11 @@ const serverSchema = z.object({
   // Without a Resend key, dev logs emails instead of sending them; production records a failure.
   RESEND_API_KEY: z.preprocess(emptyToUndefined, z.string().startsWith("re_").optional()),
   EMAIL_FROM: z.preprocess(emptyToUndefined, z.string().optional()),
+  // R2 is only needed for admin image uploads; without it the upload endpoint reports it as unavailable.
+  R2_ACCOUNT_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+  R2_ACCESS_KEY_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+  R2_SECRET_ACCESS_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  R2_PUBLIC_BUCKET: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
 type ServerEnv = z.infer<typeof serverSchema>;

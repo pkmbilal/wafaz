@@ -41,6 +41,7 @@ export function statusTone(value: string): StatusTone {
     case "completed":
     case "delivered":
     case "processed":
+    case "active":
       return "success";
     case "confirmed":
     case "packed":
@@ -51,6 +52,7 @@ export function statusTone(value: string): StatusTone {
     case "partially_refunded":
     case "pending":
     case "initiated":
+    case "draft":
       return "warning";
     case "failed":
     case "returned_to_origin":

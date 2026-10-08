@@ -271,6 +271,14 @@ Customers never write directly to orders, payments or documents. All writes go t
   - Clears "Needs attention" and logs the note in `order_events`.
 - **`admin_low_stock()`**
   - Security invoker, admins only: active variants at or below `store_settings.low_stock_threshold` available units.
+- **`admin_adjust_stock(variant_id, delta)`**
+  - Security definer, admins only. Locks the variant row, adds or removes units (received stock, damage, recount) and returns the new stock. Never below `reserved`. The only way admins change stock; the column grants block direct writes.
+- **`admin_save_variants(product_id, variants)`**
+  - Security invoker (RLS and column grants apply), admins only. In one transaction, updates existing variants (never their stock) and inserts new ones with their opening stock.
+- **`admin_set_product_tags(product_id, tag_ids)`**, **`admin_set_product_collections(product_id, collection_ids)`**
+  - Security invoker, admins only. Replace the product's whole set; new collection memberships go to the end of each collection.
+- **`admin_reorder_media(product_id, media_ids)`**, **`admin_set_collection_products(collection_id, product_ids)`**
+  - Security invoker, admins only. The array order becomes `sort_order`; the second also replaces the collection's members.
 - **`next_document_number(doc_type, issued_at)`**
   - Gets the fiscal year from `issued_at at time zone 'Asia/Kolkata'` (April–March).
   - Upserts and locks the `document_sequences` row, increments it, and returns the formatted number. This keeps numbering gapless.

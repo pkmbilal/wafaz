@@ -336,7 +336,7 @@ export type Dashboard = {
   failedWebhooks: { id: string; eventType: string; error: string | null; createdAt: string }[];
   failedEmails: { orderId: string | null; orderNumber: string | null; kind: string; error: string | null; createdAt: string }[];
   failedOtpSends: number;
-  lowStock: { variantId: string; productTitle: string; sku: string; size: string; colour: string; available: number }[];
+  lowStock: { variantId: string; productId: string; productTitle: string; sku: string; size: string; colour: string; available: number }[];
 };
 
 // Midnight today in India, as an ISO timestamp.
@@ -433,6 +433,7 @@ export async function getDashboard(): Promise<Dashboard> {
     failedOtpSends: otp.count ?? 0,
     lowStock: (lowStock.data ?? []).map((v) => ({
       variantId: v.variant_id,
+      productId: v.product_id,
       productTitle: v.product_title,
       sku: v.sku,
       size: v.size,

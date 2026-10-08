@@ -3,6 +3,7 @@
 import { refresh, revalidateTag } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
+import { type ActionResult, firstIssue } from "@/lib/admin-actions";
 import { requireAdmin } from "@/lib/auth/guards";
 import { cacheTags } from "@/lib/cache-tags";
 import { type Notice, sendNotices } from "@/lib/notifications";
@@ -22,13 +23,7 @@ import {
 // the service role (AGENTS.md §5.8); the functions validate the transition and log order_events.
 // Staff can pack, ship, deliver and mark RTO; refunds and cancellations are owner-only (ROADMAP).
 
-export type ActionResult = { ok: true; message?: string } | { ok: false; error: string };
-
 const NOT_ALLOWED = "That action isn't possible for this order's current status. Refresh and try again.";
-
-function firstIssue(error: z.ZodError): string {
-  return error.issues[0]?.message ?? "Check the form and try again";
-}
 
 function notify(admin: ReturnType<typeof createAdminClient>, notices: Notice[]) {
   if (notices.length > 0) after(() => sendNotices(notices, { admin }));
