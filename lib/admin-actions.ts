@@ -17,6 +17,7 @@ const UNIQUE_MESSAGES: Record<string, string> = {
   collections_slug_key: "Another collection already uses this URL slug.",
   tags_slug_key: "Another tag already uses this slug.",
   size_charts_name_key: "Another size chart already has this name.",
+  coupons_code_key: "Another coupon already uses this code.",
 };
 
 type DbError = { code?: string; message: string };

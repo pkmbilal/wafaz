@@ -62,8 +62,9 @@ export async function setMarketingConsent(input: unknown): Promise<ActionResult>
   return { ok: true };
 }
 
-// The owner handles the request; orders and invoices are kept for tax records.
-// TODO(owner): admin email notification for deletion requests (lands with admin notifications).
+// The owner handles the request from the admin dashboard; orders and invoices are kept for tax
+// records. TODO(owner): no email alert for these (it would need the service role here, which
+// AGENTS.md §5.8 doesn't allow); check the dashboard's "Deletion requests" panel.
 export async function requestAccountDeletion(): Promise<ActionResult> {
   const session = await signedInClient();
   if (!session) return { ok: false, error: "Please sign in again." };

@@ -37,3 +37,9 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   const admin = await lookupAdmin();
   return admin.status === "admin" ? { userId: admin.userId, role: admin.role } : null;
 }
+
+// Owner-only Server Actions: redirects non-admins like requireAdmin, returns null for staff.
+export async function requireOwner(): Promise<AdminSession | null> {
+  const session = await requireAdmin();
+  return session.role === "owner" ? session : null;
+}

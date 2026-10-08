@@ -1246,6 +1246,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string;
+          deletion_processed_at: string | null;
           deletion_requested_at: string | null;
           email: string | null;
           full_name: string | null;
@@ -1258,6 +1259,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          deletion_processed_at?: string | null;
           deletion_requested_at?: string | null;
           email?: string | null;
           full_name?: string | null;
@@ -1270,6 +1272,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          deletion_processed_at?: string | null;
           deletion_requested_at?: string | null;
           email?: string | null;
           full_name?: string | null;
@@ -1939,6 +1942,10 @@ export type Database = {
           razorpay_payment_id: string;
           refund_id: string;
         }[];
+      };
+      process_account_deletion: {
+        Args: { p_user_id: string };
+        Returns: number;
       };
       record_auto_refund: {
         Args: {
