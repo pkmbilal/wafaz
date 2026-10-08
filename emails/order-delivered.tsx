@@ -7,7 +7,7 @@ export type OrderDeliveredEmailProps = {
   seller: EmailSeller;
 };
 
-// Wired up in M8, when admin marks an order delivered.
+// Sent when admin marks an order delivered.
 export function OrderDeliveredEmail(p: OrderDeliveredEmailProps) {
   return (
     <EmailLayout preview={`Order ${p.orderNumber} has been delivered`} heading="Your order has arrived" seller={p.seller}>

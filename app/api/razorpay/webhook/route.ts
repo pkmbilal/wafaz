@@ -6,7 +6,7 @@ import { handleRazorpayWebhook } from "@/lib/payments/razorpay-webhook";
 import { refundPayment } from "@/lib/razorpay";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// Razorpay webhook (payment.captured, payment.failed). Returns 500 on processing errors so
+// Razorpay webhook (payment.captured, payment.failed, refund.*). Returns 500 on processing errors so
 // Razorpay retries; every failure is recorded on the webhook_events row.
 export async function POST(req: Request) {
   // Raw body first: the signature covers the exact bytes.

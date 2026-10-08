@@ -2,23 +2,34 @@ import "server-only";
 import { AdminNeedsAttentionEmail } from "@/emails/admin-needs-attention";
 import type { EmailSeller } from "@/emails/components";
 import { LatePaymentRefundedEmail } from "@/emails/late-payment-refunded";
+import { OrderCancelledEmail } from "@/emails/order-cancelled";
 import { OrderConfirmedEmail } from "@/emails/order-confirmed";
+import { OrderDeliveredEmail } from "@/emails/order-delivered";
+import { OrderRefundedEmail } from "@/emails/order-refunded";
+import { OrderShippedEmail } from "@/emails/order-shipped";
 import { type EmailOutcome, type EmailTransport, sendEmail } from "@/lib/email";
 import { publicEnv } from "@/lib/env";
 import { orderLinkToken } from "@/lib/orders/link-token";
 import type { OrderAddress } from "@/lib/orders/queries";
 import { hashIdentifier } from "@/lib/request";
+import { type Courier, courierLabels, trackingUrl } from "@/lib/shipping/tracking";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
-// Order emails triggered by payment events. Data is read with the service role (called from the
-// webhook, never from client code); links carry the signed guest token so they work without login.
+// Order emails triggered by payment events and admin order actions. Data is read with the service
+// role (called from the webhook or admin Server Actions, never from client code); links carry the
+// signed guest token so they work without login.
 
 type AdminClient = ReturnType<typeof createAdminClient>;
 
 export type Notice =
   | { type: "order_confirmed"; orderId: string }
   | { type: "late_payment_refunded"; orderId: string; amountPaise: number }
-  | { type: "needs_attention"; orderId: string; reason: string };
+  | { type: "needs_attention"; orderId: string; reason: string }
+  | { type: "order_shipped"; orderId: string }
+  | { type: "order_delivered"; orderId: string }
+  // Cancellation and refunds name the refund, whose credit note the email links to.
+  | { type: "order_cancelled"; orderId: string; refundId: string }
+  | { type: "order_refunded"; orderId: string; refundId: string };
 
 type Deps = { admin: AdminClient; transport?: EmailTransport | "dry_run" | "unconfigured" };
 
@@ -44,13 +55,30 @@ async function loadSettings(admin: AdminClient): Promise<Settings> {
   };
 }
 
+function siteBase(): string {
+  return publicEnv.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+}
+
 export function orderLinks(orderId: string, email: string) {
-  const base = publicEnv.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  const base = siteBase();
   const t = encodeURIComponent(orderLinkToken(orderId, email));
   return {
     orderUrl: `${base}/orders/${orderId}?t=${t}`,
     invoiceUrl: `${base}/api/invoices/${orderId}?t=${t}`,
+    creditNoteUrl: (creditNoteId: string) => `${base}/api/credit-notes/${creditNoteId}?t=${t}`,
   };
+}
+
+async function loadRefund(admin: AdminClient, refundId: string, orderId: string) {
+  const { data, error } = await admin
+    .from("refunds")
+    .select("amount_paise, credit_notes(id, number)")
+    .eq("id", refundId)
+    .eq("order_id", orderId)
+    .single();
+  if (error) throw new Error(`refund ${refundId}: ${error.message}`);
+  const note = Array.isArray(data.credit_notes) ? data.credit_notes[0] : data.credit_notes;
+  return { amountPaise: data.amount_paise, creditNote: note ?? null };
 }
 
 export function addressLines(a: OrderAddress): string[] {
@@ -148,7 +176,6 @@ export async function sendNotice(notice: Notice, deps: Deps): Promise<EmailOutco
         transport,
       );
     case "needs_attention": {
-      const base = publicEnv.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
       return sendEmail(
         admin,
         {
@@ -158,8 +185,122 @@ export async function sendNotice(notice: Notice, deps: Deps): Promise<EmailOutco
           orderId: order.id,
           to: settings.alertEmail,
           subject: `Needs attention: order ${order.number}`,
-          // TODO(M8): link straight to /admin/orders/[id] once the orders screen exists.
-          react: <AdminNeedsAttentionEmail orderNumber={order.number} reason={notice.reason} adminUrl={`${base}/admin`} />,
+          react: (
+            <AdminNeedsAttentionEmail
+              orderNumber={order.number}
+              reason={notice.reason}
+              adminUrl={`${siteBase()}/admin/orders/${order.id}`}
+            />
+          ),
+        },
+        transport,
+      );
+    }
+    case "order_shipped": {
+      const { data: shipment, error: shipmentError } = await admin
+        .from("shipments")
+        .select("courier, tracking_number")
+        .eq("order_id", order.id)
+        .single();
+      if (shipmentError) throw new Error(`shipment ${order.id}: ${shipmentError.message}`);
+      const courier = shipment.courier as Courier;
+      const links = orderLinks(order.id, order.email);
+      return sendEmail(
+        admin,
+        {
+          kind: "order_shipped",
+          dedupeKey: `order_shipped:${order.id}`,
+          orderId: order.id,
+          to: order.email,
+          replyTo: settings.supportEmail,
+          subject: `Order ${order.number} has shipped`,
+          react: (
+            <OrderShippedEmail
+              orderNumber={order.number}
+              customerName={customerName}
+              courierName={courierLabels[courier] ?? shipment.courier}
+              trackingNumber={shipment.tracking_number}
+              trackingUrl={trackingUrl(courier, shipment.tracking_number) ?? links.orderUrl}
+              orderUrl={links.orderUrl}
+              seller={settings}
+            />
+          ),
+        },
+        transport,
+      );
+    }
+    case "order_delivered":
+      return sendEmail(
+        admin,
+        {
+          kind: "order_delivered",
+          dedupeKey: `order_delivered:${order.id}`,
+          orderId: order.id,
+          to: order.email,
+          replyTo: settings.supportEmail,
+          subject: `Order ${order.number} has been delivered`,
+          react: (
+            <OrderDeliveredEmail
+              orderNumber={order.number}
+              customerName={customerName}
+              orderUrl={orderLinks(order.id, order.email).orderUrl}
+              seller={settings}
+            />
+          ),
+        },
+        transport,
+      );
+    case "order_cancelled": {
+      const refund = await loadRefund(admin, notice.refundId, order.id);
+      const links = orderLinks(order.id, order.email);
+      return sendEmail(
+        admin,
+        {
+          kind: "order_cancelled",
+          dedupeKey: `order_cancelled:${order.id}`,
+          orderId: order.id,
+          to: order.email,
+          replyTo: settings.supportEmail,
+          subject: `Order ${order.number} has been cancelled`,
+          react: (
+            <OrderCancelledEmail
+              orderNumber={order.number}
+              customerName={customerName}
+              refundPaise={refund.amountPaise}
+              creditNoteNumber={refund.creditNote?.number ?? null}
+              creditNoteUrl={refund.creditNote ? links.creditNoteUrl(refund.creditNote.id) : null}
+              orderUrl={links.orderUrl}
+              seller={settings}
+            />
+          ),
+        },
+        transport,
+      );
+    }
+    case "order_refunded": {
+      const refund = await loadRefund(admin, notice.refundId, order.id);
+      if (!refund.creditNote) throw new Error(`refund ${notice.refundId} has no credit note`);
+      const links = orderLinks(order.id, order.email);
+      return sendEmail(
+        admin,
+        {
+          kind: "order_refunded",
+          dedupeKey: `order_refunded:${notice.refundId}`,
+          orderId: order.id,
+          to: order.email,
+          replyTo: settings.supportEmail,
+          subject: `Refund for order ${order.number}`,
+          react: (
+            <OrderRefundedEmail
+              orderNumber={order.number}
+              customerName={customerName}
+              amountPaise={refund.amountPaise}
+              creditNoteNumber={refund.creditNote.number}
+              creditNoteUrl={links.creditNoteUrl(refund.creditNote.id)}
+              orderUrl={links.orderUrl}
+              seller={settings}
+            />
+          ),
         },
         transport,
       );

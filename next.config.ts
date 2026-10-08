@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   // PDFs register their fonts from disk at runtime, so the TTFs must ship with the routes that render them.
   outputFileTracingIncludes: {
     "/api/invoices/*": ["./pdf/fonts/**/*"],
+    "/api/credit-notes/*": ["./pdf/fonts/**/*"],
+    "/admin/orders/*": ["./pdf/fonts/**/*"],
   },
   images: {
     loader: "custom",

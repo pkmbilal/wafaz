@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { Notice } from "@/lib/notifications";
+import { completeRefund } from "@/lib/orders/refunds";
 import { verifyWebhookSignature } from "@/lib/razorpay";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
@@ -33,16 +34,26 @@ const paymentEntitySchema = z.object({
   error_description: z.string().nullish(),
 });
 
+const refundEntitySchema = z.object({
+  id: z.string(),
+  payment_id: z.string(),
+  amount: z.number().int(),
+  // Razorpay sends an empty array when a refund has no notes.
+  notes: z.union([z.record(z.string(), z.unknown()), z.array(z.unknown())]).nullish(),
+});
+
 const eventSchema = z.object({
   event: z.string(),
   payload: z
     .object({
-      payment: z.object({ entity: paymentEntitySchema }).optional(),
+      payment: z.object({ entity: paymentEntitySchema.partial().passthrough() }).optional(),
+      refund: z.object({ entity: refundEntitySchema }).optional(),
     })
     .passthrough(),
 });
 
 type PaymentEntity = z.infer<typeof paymentEntitySchema>;
+type RefundEntity = z.infer<typeof refundEntitySchema>;
 
 class WebhookError extends Error {}
 
@@ -101,7 +112,9 @@ export async function handleRazorpayWebhook(
   // 3. Process, then record the outcome.
   try {
     const notices: Notice[] = [];
-    const result = await processEvent(event.event, event.payload.payment?.entity, deps, notices);
+    const result = event.event.startsWith("refund.")
+      ? await processRefundEvent(event.event, event.payload.refund?.entity, deps, notices)
+      : await processEvent(event.event, event.payload.payment?.entity, deps, notices);
     await admin
       .from("webhook_events")
       .update({ status: "processed", error: null, processed_at: new Date().toISOString() })
@@ -132,14 +145,74 @@ async function productIdsFor(admin: AdminClient, orderId: string): Promise<strin
   return [...new Set((data ?? []).map((r) => r.product_id))];
 }
 
+// refund.processed / refund.failed update refunds the admin started (or the late-payment auto
+// refund). A refund still 'initiated' (its Server Action died after Razorpay accepted it) is found
+// by the refund id in its notes and completed here.
+async function processRefundEvent(
+  type: string,
+  refund: RefundEntity | undefined,
+  deps: WebhookDeps,
+  notices: Notice[],
+): Promise<string> {
+  if (type !== "refund.processed" && type !== "refund.failed" && type !== "refund.created") return "ignored";
+  if (!refund) throw new WebhookError("refund entity missing");
+  const { admin } = deps;
+
+  const { data: known } = await admin.from("refunds").select("id").eq("razorpay_refund_id", refund.id).maybeSingle();
+  if (!known) {
+    const notes = refund.notes && !Array.isArray(refund.notes) ? refund.notes : {};
+    const ourId = z.uuid().safeParse(notes.refund_id);
+    if (!ourId.success) return "unknown_refund";
+    const { data: initiated } = await admin
+      .from("refunds")
+      .select("id, order_id, amount_paise")
+      .eq("id", ourId.data)
+      .eq("status", "initiated")
+      .maybeSingle();
+    if (!initiated) return "unknown_refund";
+    if (initiated.amount_paise !== refund.amount) {
+      await flag(admin, notices, initiated.order_id, `Refund ${refund.id} amount ${refund.amount} doesn't match our record`);
+      return "amount_mismatch";
+    }
+    if (type === "refund.failed") {
+      const { error } = await admin.rpc("fail_refund", { p_refund_id: initiated.id, p_error: "Razorpay refund failed" });
+      if (error) throw new WebhookError(`fail_refund: ${error.message}`);
+      notices.push({ type: "needs_attention", orderId: initiated.order_id, reason: `Refund ${refund.id} failed` });
+      return "refund_failed";
+    }
+    try {
+      const done = await completeRefund(admin, initiated.id, refund.id, type === "refund.processed" ? "processed" : "pending");
+      if (done.productIds.length > 0) deps.onStockChanged?.(done.productIds);
+      notices.push(...done.notices);
+    } catch (e) {
+      throw new WebhookError(e instanceof Error ? e.message : "complete_refund failed");
+    }
+    return "refund_recovered";
+  }
+
+  if (type === "refund.created") return "ignored";
+  const status = type === "refund.processed" ? "processed" : "failed";
+  const { data: orderId, error } = await admin.rpc("record_refund_status", {
+    p_razorpay_refund_id: refund.id,
+    p_status: status,
+  });
+  if (error) throw new WebhookError(`record_refund_status: ${error.message}`);
+  if (status === "failed" && orderId) {
+    notices.push({ type: "needs_attention", orderId, reason: `Razorpay refund ${refund.id} failed` });
+  }
+  return `refund_${status}`;
+}
+
 async function processEvent(
   type: string,
-  payment: PaymentEntity | undefined,
+  rawPayment: unknown,
   deps: WebhookDeps,
   notices: Notice[],
 ): Promise<string> {
   if (type !== "payment.captured" && type !== "payment.failed") return "ignored";
-  if (!payment) throw new WebhookError("payment entity missing");
+  const parsedPayment = paymentEntitySchema.safeParse(rawPayment);
+  if (!parsedPayment.success) throw new WebhookError("payment entity missing");
+  const payment: PaymentEntity = parsedPayment.data;
   const { admin } = deps;
 
   const { data: link } = await admin

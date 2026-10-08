@@ -11,7 +11,7 @@ export type OrderShippedEmailProps = {
   seller: EmailSeller;
 };
 
-// Wired up in M8, when admin marks an order shipped.
+// Sent when admin marks an order shipped.
 export function OrderShippedEmail(p: OrderShippedEmailProps) {
   return (
     <EmailLayout preview={`Order ${p.orderNumber} is on its way`} heading="Your order is on its way" seller={p.seller}>

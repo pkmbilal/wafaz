@@ -2,6 +2,7 @@ import "server-only";
 import { verifyOrderLinkToken } from "@/lib/orders/link-token";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { type Courier, courierLabels, isCourier, trackingUrl } from "@/lib/shipping/tracking";
 
 // Order reads for customers. The owner reads through RLS; a guest link (?t=) is verified first and
 // then read with the service role, scoped to that one order id (AGENTS.md §5.8). Never cached.
@@ -55,6 +56,8 @@ export type OrderView = {
   igstPaise: number;
   items: OrderItemView[];
   invoiceNumber: string | null;
+  shipment: { courierName: string; trackingNumber: string; trackingUrl: string | null } | null;
+  creditNotes: { id: string; number: string; issuedAt: string; totalPaise: number }[];
 };
 
 const ORDER_COLUMNS =
@@ -62,7 +65,7 @@ const ORDER_COLUMNS =
   "shipping_address, coupon_code, subtotal_paise, discount_paise, shipping_paise, total_paise, " +
   "cgst_paise, sgst_paise, igst_paise, " +
   "order_items(id, product_slug, product_title, size, colour, image_key, qty, unit_price_paise, line_net_paise, line_discount_paise), " +
-  "invoices(number)";
+  "invoices(number), shipments(courier, tracking_number), credit_notes(id, number, issued_at, totals)";
 
 type OrderRow = {
   id: string;
@@ -96,7 +99,22 @@ type OrderRow = {
     line_discount_paise: number;
   }[];
   invoices: { number: string } | { number: string }[] | null;
+  shipments: ShipmentRow | ShipmentRow[] | null;
+  credit_notes: { id: string; number: string; issued_at: string; totals: { total_paise: number } }[];
 };
+
+type ShipmentRow = { courier: string; tracking_number: string };
+
+function shipmentView(row: OrderRow["shipments"]): OrderView["shipment"] {
+  const s = Array.isArray(row) ? row[0] : row;
+  if (!s) return null;
+  const courier: Courier = isCourier(s.courier) ? s.courier : "other";
+  return {
+    courierName: courierLabels[courier],
+    trackingNumber: s.tracking_number,
+    trackingUrl: trackingUrl(courier, s.tracking_number),
+  };
+}
 
 function toView(row: OrderRow): OrderView {
   const invoice = Array.isArray(row.invoices) ? row.invoices[0] : row.invoices;
@@ -132,6 +150,10 @@ function toView(row: OrderRow): OrderView {
       lineDiscountPaise: i.line_discount_paise,
     })),
     invoiceNumber: invoice?.number ?? null,
+    shipment: shipmentView(row.shipments),
+    creditNotes: [...(row.credit_notes ?? [])]
+      .sort((a, b) => a.issued_at.localeCompare(b.issued_at))
+      .map((c) => ({ id: c.id, number: c.number, issuedAt: c.issued_at, totalPaise: c.totals.total_paise })),
   };
 }
 

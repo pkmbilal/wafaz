@@ -7,9 +7,9 @@ import { createClient } from "@/lib/supabase/server";
 // Tax invoice reads for the PDF route. The invoice row is the frozen snapshot written at payment
 // capture (AGENTS.md §5.2): the PDF renders exactly these figures and never recalculates.
 
-const paise = z.number().int();
+export const paise = z.number().int();
 
-const addressSchema = z.object({
+export const invoiceAddressSchema = z.object({
   name: z.string(),
   phone: z.string(),
   line1: z.string(),
@@ -20,7 +20,7 @@ const addressSchema = z.object({
   pincode: z.string(),
 });
 
-const lineSchema = z.object({
+export const invoiceLineSchema = z.object({
   description: z.string(),
   sku: z.string().nullable(),
   hsn_code: z.string(),
@@ -35,29 +35,33 @@ const lineSchema = z.object({
   total_paise: paise,
 });
 
+export const sellerSnapshotSchema = z.object({
+  legal_name: z.string(),
+  trade_name: z.string(),
+  gstin: z.string().nullable(),
+  address_line1: z.string(),
+  address_line2: z.string().nullable(),
+  city: z.string(),
+  state: z.string().nullable(),
+  state_code: z.string(),
+  pincode: z.string(),
+  email: z.string(),
+  phone: z.string(),
+});
+
+export const buyerSnapshotSchema = z.object({
+  email: z.string(),
+  phone: z.string(),
+  billing_address: invoiceAddressSchema,
+  shipping_address: invoiceAddressSchema,
+});
+
 const invoiceRowSchema = z.object({
   number: z.string(),
   issued_at: z.string(),
   place_of_supply_code: z.string(),
-  seller_snapshot: z.object({
-    legal_name: z.string(),
-    trade_name: z.string(),
-    gstin: z.string().nullable(),
-    address_line1: z.string(),
-    address_line2: z.string().nullable(),
-    city: z.string(),
-    state: z.string().nullable(),
-    state_code: z.string(),
-    pincode: z.string(),
-    email: z.string(),
-    phone: z.string(),
-  }),
-  buyer_snapshot: z.object({
-    email: z.string(),
-    phone: z.string(),
-    billing_address: addressSchema,
-    shipping_address: addressSchema,
-  }),
+  seller_snapshot: sellerSnapshotSchema,
+  buyer_snapshot: buyerSnapshotSchema,
   totals: z.object({
     subtotal_paise: paise,
     discount_paise: paise,
@@ -69,13 +73,14 @@ const invoiceRowSchema = z.object({
     igst_paise: paise,
     coupon_code: z.string().nullable(),
   }),
-  lines: z.array(lineSchema),
+  lines: z.array(invoiceLineSchema),
   orders: z.object({ number: z.string() }),
 });
 
 export type InvoiceRow = z.infer<typeof invoiceRowSchema>;
-export type InvoiceLine = z.infer<typeof lineSchema>;
-export type InvoiceAddress = z.infer<typeof addressSchema>;
+export type InvoiceLine = z.infer<typeof invoiceLineSchema>;
+export type InvoiceAddress = z.infer<typeof invoiceAddressSchema>;
+export type SellerSnapshot = z.infer<typeof sellerSnapshotSchema>;
 
 export const INVOICE_COLUMNS =
   "number, issued_at, place_of_supply_code, seller_snapshot, buyer_snapshot, totals, lines, orders!inner(number)";
