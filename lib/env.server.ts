@@ -18,6 +18,9 @@ const serverSchema = z.object({
   WHATSAPP_ACCESS_TOKEN: z.preprocess(emptyToUndefined, z.string().optional()),
   WHATSAPP_OTP_TEMPLATE_NAME: z.preprocess(emptyToUndefined, z.string().optional()),
   WHATSAPP_OTP_TEMPLATE_LANG: z.preprocess(emptyToUndefined, z.string().default("en")),
+  // Without a Resend key, dev logs emails instead of sending them; production records a failure.
+  RESEND_API_KEY: z.preprocess(emptyToUndefined, z.string().startsWith("re_").optional()),
+  EMAIL_FROM: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
 type ServerEnv = z.infer<typeof serverSchema>;

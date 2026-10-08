@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   // Catalog pages use "use cache" + cacheTag; session-bearing routes read cookies and stay dynamic.
   cacheComponents: true,
+  // PDFs register their fonts from disk at runtime, so the TTFs must ship with the routes that render them.
+  outputFileTracingIncludes: {
+    "/api/invoices/*": ["./pdf/fonts/**/*"],
+  },
   images: {
     loader: "custom",
     loaderFile: "./lib/image-loader.ts",

@@ -187,6 +187,13 @@ shipments
 ```
 rate_limits   key text, window_start timestamptz, count int, pk (key, window_start)
               -- pg_cron deletes rows older than 1 day
+email_events  order_id null, kind ('order_confirmed' | 'late_payment_refunded' | 'order_shipped' |
+              'order_delivered' | 'order_cancelled' | 'order_refunded' | 'admin_needs_attention'),
+              dedupe_key text unique,      -- e.g. 'order_confirmed:<order id>', also Resend's idempotency key
+              recipient_hash text,         -- sha256 of the address, no raw PII
+              status ('pending' | 'sent' | 'failed' | 'dry_run'), attempts, error null, provider_message_id null
+              -- one row per logical email so webhook retries never double-send; failures in the
+              -- last 24 h feed "Needs attention"
 ```
 
 ## 3. RLS Summary
@@ -198,7 +205,7 @@ rate_limits   key text, window_start timestamptz, count int, pk (key, window_sta
 | `profiles` | own row (cannot change `role`) | read | read/write |
 | `addresses`, `carts`, `cart_items` | own rows | read | read |
 | `orders`, `order_items`, `invoices`, `credit_notes`, `shipments` | read own | read + status actions via functions | all |
-| `payments`, `refunds`, `webhook_events`, `auth_hook_events`, `coupon_redemptions`, `document_sequences`, `rate_limits` | none | read (no `webhook_events`, `auth_hook_events`) | read |
+| `payments`, `refunds`, `webhook_events`, `auth_hook_events`, `email_events`, `coupon_redemptions`, `document_sequences`, `rate_limits` | none | read (no `webhook_events`, `auth_hook_events`) | read |
 | `coupons` | none (validated server-side) | read | read/write |
 | `store_settings` | read public fields via view `public_store_settings` | read | read/write |
 
