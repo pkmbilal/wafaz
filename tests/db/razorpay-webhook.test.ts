@@ -24,6 +24,7 @@ let variants: StockedVariant[] = [];
 const users: string[] = [];
 const refund = vi.fn(async () => ({ id: fakeRazorpayId("rfnd"), status: "processed" as const }));
 const stockChanged = vi.fn();
+const notify = vi.fn();
 
 beforeAll(async () => {
   stubPublicEnv();
@@ -49,7 +50,7 @@ function deliver(rawBody: string, opts: { eventId?: string; secret?: string } = 
   const signature = createHmac("sha256", opts.secret ?? SECRET).update(rawBody).digest("hex");
   return handle(
     { rawBody, signature, eventId: opts.eventId ?? `evt_${randomUUID()}` },
-    { admin, webhookSecret: SECRET, refund, onStockChanged: stockChanged },
+    { admin, webhookSecret: SECRET, refund, onStockChanged: stockChanged, notify },
   );
 }
 
@@ -80,9 +81,13 @@ describe("Razorpay webhook", () => {
     expect(first).toEqual({ status: 200, body: { ok: true, result: "committed" } });
     expect(await orderRow(order.orderId)).toMatchObject({ order_status: "confirmed", payment_status: "paid" });
     expect(stockChanged).toHaveBeenCalledWith([variants[0].productId]);
+    expect(notify).toHaveBeenLastCalledWith([{ type: "order_confirmed", orderId: order.orderId }]);
+    const notifyCalls = notify.mock.calls.length;
 
     const duplicate = await deliver(body, { eventId });
     expect(duplicate.body.result).toBe("duplicate");
+    // A duplicate delivery never re-sends the confirmation email.
+    expect(notify.mock.calls.length).toBe(notifyCalls);
     const { data: rows } = await admin.from("webhook_events").select("status").eq("event_id", eventId);
     expect(rows).toEqual([{ status: "processed" }]);
   });
@@ -97,6 +102,9 @@ describe("Razorpay webhook", () => {
       payment_status: "unpaid",
       needs_attention: true,
     });
+    expect(notify).toHaveBeenLastCalledWith([
+      { type: "needs_attention", orderId: order.orderId, reason: expect.stringContaining("Amount mismatch") },
+    ]);
   });
 
   it("handles a failure followed by a success", async () => {
@@ -131,6 +139,10 @@ describe("Razorpay webhook", () => {
         payment_status: "refunded",
         needs_attention: true,
       });
+      expect(notify).toHaveBeenLastCalledWith([
+        { type: "late_payment_refunded", orderId: data!.order_id, amountPaise: data!.total_paise },
+        { type: "needs_attention", orderId: data!.order_id, reason: expect.stringContaining(paymentId) },
+      ]);
     } finally {
       await restoreStock([scarce]);
     }

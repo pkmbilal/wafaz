@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FileDown } from "lucide-react";
 import { z } from "zod";
 import { OrderStatusTimeline } from "@/components/store/order-status-timeline";
 import { OrderSummary } from "@/components/store/order-summary";
@@ -137,11 +138,23 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
               {address.phone}
             </address>
           </section>
-          {/* TODO(M7): invoice PDF download once documents are rendered. */}
+          {order.invoiceNumber && (
+            <Button asChild variant="outline" className="w-full">
+              {/* A plain anchor: the route handler streams a PDF download, not a page. */}
+              <a href={invoiceHref(order.id, query.t)} download>
+                <FileDown aria-hidden="true" />
+                Download invoice
+              </a>
+            </Button>
+          )}
         </aside>
       </div>
     </article>
   );
+}
+
+function invoiceHref(orderId: string, token?: string): string {
+  return token ? `/api/invoices/${orderId}?t=${encodeURIComponent(token)}` : `/api/invoices/${orderId}`;
 }
 
 function OrderSkeleton() {

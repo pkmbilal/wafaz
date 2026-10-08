@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import type { Notice } from "@/lib/notifications";
 import { verifyWebhookSignature } from "@/lib/razorpay";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
@@ -17,6 +18,9 @@ export type WebhookDeps = {
   }>;
   // Product ids whose stock changed, for revalidateTag.
   onStockChanged?: (productIds: string[]) => void;
+  // Emails to send once the event is processed. Called only on success, after the event is
+  // marked processed, so a retry (which skips processed events) never re-notifies.
+  notify?: (notices: Notice[]) => void;
 };
 
 export type WebhookResult = { status: number; body: { ok: boolean; result?: string; error?: string } };
@@ -96,11 +100,13 @@ export async function handleRazorpayWebhook(
 
   // 3. Process, then record the outcome.
   try {
-    const result = await processEvent(event.event, event.payload.payment?.entity, deps);
+    const notices: Notice[] = [];
+    const result = await processEvent(event.event, event.payload.payment?.entity, deps, notices);
     await admin
       .from("webhook_events")
       .update({ status: "processed", error: null, processed_at: new Date().toISOString() })
       .eq("id", rowId!);
+    if (notices.length > 0) deps.notify?.(notices);
     return { status: 200, body: { ok: true, result } };
   } catch (e) {
     const message = e instanceof Error ? e.message.slice(0, 2000) : "unknown error";
@@ -110,7 +116,7 @@ export async function handleRazorpayWebhook(
   }
 }
 
-async function flag(admin: AdminClient, orderId: string, reason: string) {
+async function flag(admin: AdminClient, notices: Notice[], orderId: string, reason: string) {
   const { data } = await admin.from("orders").select("attention_reason").eq("id", orderId).single();
   const combined = [data?.attention_reason, reason].filter(Boolean).join("; ").slice(0, 500);
   const { error } = await admin
@@ -118,6 +124,7 @@ async function flag(admin: AdminClient, orderId: string, reason: string) {
     .update({ needs_attention: true, attention_reason: combined })
     .eq("id", orderId);
   if (error) throw new WebhookError(`flag failed: ${error.message}`);
+  notices.push({ type: "needs_attention", orderId, reason });
 }
 
 async function productIdsFor(admin: AdminClient, orderId: string): Promise<string[]> {
@@ -125,7 +132,12 @@ async function productIdsFor(admin: AdminClient, orderId: string): Promise<strin
   return [...new Set((data ?? []).map((r) => r.product_id))];
 }
 
-async function processEvent(type: string, payment: PaymentEntity | undefined, deps: WebhookDeps): Promise<string> {
+async function processEvent(
+  type: string,
+  payment: PaymentEntity | undefined,
+  deps: WebhookDeps,
+  notices: Notice[],
+): Promise<string> {
   if (type !== "payment.captured" && type !== "payment.failed") return "ignored";
   if (!payment) throw new WebhookError("payment entity missing");
   const { admin } = deps;
@@ -154,7 +166,7 @@ async function processEvent(type: string, payment: PaymentEntity | undefined, de
 
   // payment.captured: the amount must match the DB order before anything is fulfilled.
   if (payment.amount !== order.total_paise) {
-    await flag(admin, order.id, `Amount mismatch: paid ${payment.amount} paise, order total ${order.total_paise}`);
+    await flag(admin, notices, order.id, `Amount mismatch: paid ${payment.amount} paise, order total ${order.total_paise}`);
     return "amount_mismatch";
   }
 
@@ -170,18 +182,21 @@ async function processEvent(type: string, payment: PaymentEntity | undefined, de
   if (order.order_status === "pending_payment" || order.order_status === "confirmed") {
     const { data, error } = await admin.rpc("commit_order_payment", args);
     if (!error) {
-      if (data === "committed") deps.onStockChanged?.(await productIdsFor(admin, order.id));
+      if (data === "committed") {
+        deps.onStockChanged?.(await productIdsFor(admin, order.id));
+        notices.push({ type: "order_confirmed", orderId: order.id });
+      }
       return data ?? "committed";
     }
     if (error.message !== "payment:not_pending") throw new WebhookError(`commit: ${error.message}`);
     // Confirmed by a different payment: the customer paid twice.
     const { data: fresh } = await admin.from("orders").select("order_status").eq("id", order.id).single();
     if (fresh?.order_status !== "expired") {
-      await flag(admin, order.id, `Second payment ${payment.id} captured for an order that is ${fresh?.order_status}`);
+      await flag(admin, notices, order.id, `Second payment ${payment.id} captured for an order that is ${fresh?.order_status}`);
       return "flagged";
     }
   } else if (order.order_status !== "expired") {
-    await flag(admin, order.id, `Payment ${payment.id} captured for a ${order.order_status} order`);
+    await flag(admin, notices, order.id, `Payment ${payment.id} captured for a ${order.order_status} order`);
     return "flagged";
   }
 
@@ -190,6 +205,7 @@ async function processEvent(type: string, payment: PaymentEntity | undefined, de
   if (lateError) throw new WebhookError(`late_payment_commit: ${lateError.message}`);
   if (committed) {
     deps.onStockChanged?.(await productIdsFor(admin, order.id));
+    notices.push({ type: "order_confirmed", orderId: order.id });
     return "late_committed";
   }
 
@@ -203,6 +219,9 @@ async function processEvent(type: string, payment: PaymentEntity | undefined, de
     p_status: refund.status,
   });
   if (refundError) throw new WebhookError(`record_auto_refund: ${refundError.message}`);
-  // TODO(M7): email the customer that the late payment was refunded.
+  notices.push(
+    { type: "late_payment_refunded", orderId: order.id, amountPaise: payment.amount },
+    { type: "needs_attention", orderId: order.id, reason: `Late payment ${payment.id} refunded automatically: items sold out` },
+  );
   return "late_refunded";
 }

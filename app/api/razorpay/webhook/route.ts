@@ -1,6 +1,7 @@
 import { revalidateTag } from "next/cache";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { cacheTags } from "@/lib/cache-tags";
+import { sendNotices } from "@/lib/notifications";
 import { handleRazorpayWebhook } from "@/lib/payments/razorpay-webhook";
 import { refundPayment } from "@/lib/razorpay";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -11,6 +12,7 @@ export async function POST(req: Request) {
   // Raw body first: the signature covers the exact bytes.
   const rawBody = await req.text();
 
+  const admin = createAdminClient();
   const result = await handleRazorpayWebhook(
     {
       rawBody,
@@ -18,13 +20,16 @@ export async function POST(req: Request) {
       eventId: req.headers.get("x-razorpay-event-id"),
     },
     {
-      admin: createAdminClient(),
+      admin,
       refund: refundPayment,
       onStockChanged: (productIds) => {
         for (const id of productIds) revalidateTag(cacheTags.product(id), "max");
         // Listings show "Sold out" badges.
         revalidateTag(cacheTags.catalog, "max");
       },
+      // Emails go out after the 200 so a slow or failing send never makes Razorpay retry a
+      // processed payment. Each send is logged in email_events.
+      notify: (notices) => after(() => sendNotices(notices, { admin })),
     },
   );
 
