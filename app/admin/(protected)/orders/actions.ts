@@ -4,7 +4,7 @@ import { refresh, revalidateTag } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
 import { type ActionResult, firstIssue } from "@/lib/admin-actions";
-import { requireAdmin } from "@/lib/auth/guards";
+import { requireAdmin, requireOwner } from "@/lib/auth/guards";
 import { cacheTags } from "@/lib/cache-tags";
 import { type Notice, sendNotices } from "@/lib/notifications";
 import { refundErrorMessage, runRefund } from "@/lib/orders/refunds";
@@ -32,11 +32,6 @@ function notify(admin: ReturnType<typeof createAdminClient>, notices: Notice[]) 
 function revalidateStock(productIds: string[]) {
   for (const id of productIds) revalidateTag(cacheTags.product(id), "max");
   if (productIds.length > 0) revalidateTag(cacheTags.catalog, "max");
-}
-
-async function requireOwner() {
-  const session = await requireAdmin();
-  return session.role === "owner" ? session : null;
 }
 
 async function simpleTransition(

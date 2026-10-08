@@ -48,7 +48,8 @@ profiles (id = auth.users.id, on delete cascade)
   full_name, phone (E.164, nullable), email (nullable),
   role ('customer' | 'staff' | 'owner') default 'customer',
   marketing_consent bool default false, marketing_consent_at,
-  deletion_requested_at null
+  deletion_requested_at null,
+  deletion_processed_at null                  -- set only by process_account_deletion()
   -- row created by an AFTER INSERT trigger on auth.users (covers anonymous users too)
   -- customers cannot change role: column-level grants (grant update (full_name, phone,
   --   email, marketing_consent, marketing_consent_at, deletion_requested_at) to authenticated)
@@ -279,6 +280,9 @@ Customers never write directly to orders, payments or documents. All writes go t
   - Security invoker, admins only. Replace the product's whole set; new collection memberships go to the end of each collection.
 - **`admin_reorder_media(product_id, media_ids)`**, **`admin_set_collection_products(collection_id, product_ids)`**
   - Security invoker, admins only. The array order becomes `sort_order`; the second also replaces the collection's members.
+- **`process_account_deletion(user_id)`**
+  - Service role only (the owner's admin Server Action). Requires a pending request. Clears the profile's name, phone, email and marketing consent, deletes saved addresses and the cart, sets `deletion_processed_at`, and returns the user's order count.
+  - With no orders, the action then deletes the auth user. With orders (which reference the user), it replaces the login email with `deleted-<id>@deleted.invalid`, removes the phone and bans the login; orders, invoices and credit notes keep their own frozen copies for tax records. The auth contact-sync trigger skips processed profiles.
 - **`next_document_number(doc_type, issued_at)`**
   - Gets the fiscal year from `issued_at at time zone 'Asia/Kolkata'` (April–March).
   - Upserts and locks the `document_sequences` row, increments it, and returns the formatted number. This keeps numbering gapless.

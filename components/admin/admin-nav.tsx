@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FolderTree, LayoutDashboard, Package, Shirt, Store } from "lucide-react";
+import { FolderTree, LayoutDashboard, Package, Settings, Shirt, Store, TicketPercent } from "lucide-react";
 import { cn } from "cn";
 import { STORE_NAME } from "@/lib/site";
 
@@ -11,6 +11,8 @@ const ITEMS = [
   { label: "Orders", href: "/admin/orders", icon: Package },
   { label: "Products", href: "/admin/products", icon: Shirt },
   { label: "Catalog", href: "/admin/catalog", icon: FolderTree },
+  { label: "Coupons", href: "/admin/coupons", icon: TicketPercent },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
 ] as const;
 
 export function AdminNav() {

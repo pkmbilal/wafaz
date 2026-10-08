@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
+import { ProcessDeletionButton } from "@/components/admin/process-deletion-button";
+import { listDeletionRequests } from "@/lib/admin/queries";
+import { requireAdmin } from "@/lib/auth/guards";
 import { formatInr } from "@/lib/format";
 import { getDashboard } from "@/lib/orders/admin-queries";
 
@@ -9,7 +12,7 @@ import { getDashboard } from "@/lib/orders/admin-queries";
 const dateTime = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
 
 export default async function AdminDashboardPage() {
-  const d = await getDashboard();
+  const [d, deletions, { role }] = await Promise.all([getDashboard(), listDeletionRequests(), requireAdmin()]);
   const attentionCount =
     d.attentionOrders.length + d.stuckRefunds.length + d.failedWebhooks.length + d.failedEmails.length + d.failedOtpSends;
 
@@ -85,6 +88,33 @@ export default async function AdminDashboardPage() {
           </div>
         )}
       </section>
+
+      {deletions.length > 0 && (
+        <section aria-labelledby="deletions-heading" className="flex flex-col gap-3">
+          <h2 id="deletions-heading" className="text-2xl font-semibold">
+            Deletion requests
+          </h2>
+          <div className="rounded-lg border border-border bg-card">
+            <p className="border-b border-border px-4 py-2 text-sm text-muted-foreground">
+              Customers who asked for their account to be deleted.{" "}
+              {role === "owner" ? "Processing can't be undone." : "Only the owner can process them."}
+            </p>
+            <ul className="divide-y divide-border">
+              {deletions.map((r) => (
+                <li key={r.userId} className="flex min-h-touch flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm">
+                  <span>
+                    <span className="font-medium">Requested {dateTime.format(new Date(r.requestedAt))}</span>
+                    <span className="block text-muted-foreground">
+                      {r.orderCount === 0 ? "No orders" : `${r.orderCount} ${r.orderCount === 1 ? "order" : "orders"} (kept)`}
+                    </span>
+                  </span>
+                  {role === "owner" && <ProcessDeletionButton userId={r.userId} orderCount={r.orderCount} />}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="stock-heading" className="flex flex-col gap-3">
         <h2 id="stock-heading" className="text-2xl font-semibold">

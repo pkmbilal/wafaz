@@ -129,3 +129,17 @@ export function isoToIstLocal(iso: string | null): string {
   const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? "";
   return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
 }
+
+// "18" / "12.5" → basis points (1800 / 1250), or null when the text isn't a percent from 0 to 100.
+export function percentToBps(input: string): number | null {
+  const match = /^(\d{1,3})(?:\.(\d{1,2}))?$/.exec(input.trim());
+  if (!match) return null;
+  const bps = Number(match[1]) * 100 + Number((match[2] ?? "").padEnd(2, "0"));
+  return bps <= 10000 ? bps : null;
+}
+
+export function bpsToPercentInput(bps: number): string {
+  const whole = Math.floor(bps / 100);
+  const rest = bps % 100;
+  return rest === 0 ? String(whole) : `${whole}.${String(rest).padStart(2, "0").replace(/0$/, "")}`;
+}
