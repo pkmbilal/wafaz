@@ -58,11 +58,20 @@ export async function createRazorpayOrder(input: { amountPaise: number; receipt:
   return { id: order.id, amount: Number(order.amount) };
 }
 
-export async function refundPayment(input: { paymentId: string; amountPaise: number; orderNumber: string }) {
+// `refundId` (our refunds row) goes into the notes so the refund webhook can finish a refund whose
+// Server Action died after Razorpay accepted it.
+export async function refundPayment(input: {
+  paymentId: string;
+  amountPaise: number;
+  orderNumber: string;
+  refundId?: string;
+}) {
   const refund = await razorpay().payments.refund(input.paymentId, {
     amount: input.amountPaise,
     speed: "normal",
-    notes: { order_number: input.orderNumber },
+    notes: input.refundId
+      ? { order_number: input.orderNumber, refund_id: input.refundId }
+      : { order_number: input.orderNumber },
   });
   return { id: refund.id, status: refund.status === "processed" ? ("processed" as const) : ("pending" as const) };
 }

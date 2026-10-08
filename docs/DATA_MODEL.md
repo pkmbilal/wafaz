@@ -143,7 +143,12 @@ payments
 
 refunds
   order_id, payment_id, razorpay_refund_id unique null, amount_paise,
-  reason, status ('pending' | 'processed' | 'failed'), created_by null (null = system)
+  reason, status ('initiated' | 'pending' | 'processed' | 'failed'), created_by null (null = system),
+  kind ('auto' | 'partial' | 'cancel' | 'rto'),   -- 'auto' = late-payment refund, no credit note
+  items jsonb [{order_item_id, qty}], include_shipping bool,
+  credit_lines jsonb, credit_totals jsonb,         -- credit-note figures fixed by prepare_refund
+  error text null
+  -- 'initiated' = recorded, Razorpay not yet confirmed; at most one per order at a time
   -- the credit note points at the refund (credit_notes.refund_id), not the other way round
 
 webhook_events
@@ -169,8 +174,8 @@ invoices
   place_of_supply_code, totals jsonb, lines jsonb   -- frozen copy used for the PDF
 
 credit_notes
-  invoice_id, refund_id unique, number unique,   -- 'CN/26-27/00001'
-  issued_at, fiscal_year, reason, totals jsonb, lines jsonb
+  order_id, invoice_id, refund_id unique, number unique,   -- 'CN/26-27/00001'
+  issued_at, fiscal_year, reason, totals jsonb, lines jsonb  -- immutable, like invoices
 ```
 
 ### Shipping
@@ -179,8 +184,8 @@ shipping_zones
   name, state_codes text[], base_paise, base_weight_grams default 500,
   per_additional_500g_paise, free_above_paise null, is_active
 shipments
-  order_id, courier ('dtdc' | 'india_post' | 'other'), tracking_number,
-  shipped_at, delivered_at null, rto_received_at null, created_by
+  order_id unique, courier ('dtdc' | 'india_post' | 'other'), tracking_number,
+  shipped_at, delivered_at null, rto_at null, rto_received_at null, created_by
 ```
 
 ### Infrastructure
@@ -251,8 +256,21 @@ Customers never write directly to orders, payments or documents. All writes go t
   - Tries to reserve and commit.
   - On failure, sets `needs_attention`. The caller then issues a full automatic refund.
   - No invoice was issued for that order, so this refund has **no credit note** (the money was an advance that was returned, not a supply). TODO(owner): confirm with the CA.
-- **`restock_order_items(order_id, items)`**
-  - Used for cancellation and RTO.
+- **`restock_order_items(order_id, items)`** (private)
+  - Used for cancellation and RTO (`complete_refund`). Partial refunds don't restock.
+- **`ship_order(order_id, courier, tracking_number, actor)`**, **`mark_order_delivered(order_id, actor)`**, **`mark_order_rto(order_id, actor)`**
+  - Admin fulfilment. Shipping passes through `packed` and records the shipment; delivery also completes the order.
+- **`refund_preview(order_id, items, include_shipping)`** → `private.refund_lines`
+  - Credit-note figures from the frozen order lines, prorated cumulatively per unit: the share of units `[r, r+q)` of `n` is `round(x·(r+q)/n) − round(x·r/n)`, so a line's refunds always add up to the line exactly. Shipping is refunded only with the last of the items.
+- **`prepare_refund(order_id, kind, items, include_shipping, reason, actor)`** → **`complete_refund(refund_id, razorpay_refund_id, status)`** / **`fail_refund(refund_id, error)`**
+  - The admin Server Action calls `prepare_refund` (records an `initiated` refund with its credit-note figures), then the Razorpay Refunds API, then `complete_refund` (credit note via `next_document_number('credit_note')`, `refunded_qty`, payment status, and for `cancel`/`rto` restock + `order_status = cancelled`). A Razorpay rejection calls `fail_refund` and flags the order; no credit-note number is taken.
+  - The Razorpay refund carries our refund id in its notes, so the `refund.*` webhook can finish a refund whose Server Action died after Razorpay accepted it.
+- **`record_refund_status(razorpay_refund_id, status)`**
+  - Webhook `refund.processed` / `refund.failed` for an accepted refund. A failure after the credit note was issued flags the order.
+- **`resolve_attention(order_id, note, actor)`**
+  - Clears "Needs attention" and logs the note in `order_events`.
+- **`admin_low_stock()`**
+  - Security invoker, admins only: active variants at or below `store_settings.low_stock_threshold` available units.
 - **`next_document_number(doc_type, issued_at)`**
   - Gets the fiscal year from `issued_at at time zone 'Asia/Kolkata'` (April–March).
   - Upserts and locks the `document_sequences` row, increments it, and returns the formatted number. This keeps numbering gapless.

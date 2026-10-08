@@ -12,7 +12,7 @@ export type OrderRefundedEmailProps = {
   seller: EmailSeller;
 };
 
-// Wired up in M8, when admin issues a full or partial refund (each refund has a credit note).
+// Sent when admin issues a refund (partial, or after a returned parcel); each has a credit note.
 export function OrderRefundedEmail(p: OrderRefundedEmailProps) {
   return (
     <EmailLayout preview={`Refund for order ${p.orderNumber}`} heading="Your refund is on its way" seller={p.seller}>

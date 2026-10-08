@@ -450,6 +450,73 @@ export type Database = {
         };
         Relationships: [];
       };
+      credit_notes: {
+        Row: {
+          created_at: string;
+          fiscal_year: string;
+          id: string;
+          invoice_id: string;
+          issued_at: string;
+          lines: NonNullable<Json>;
+          number: string;
+          order_id: string;
+          reason: string;
+          refund_id: string;
+          totals: NonNullable<Json>;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          fiscal_year: string;
+          id?: string;
+          invoice_id: string;
+          issued_at?: string;
+          lines: NonNullable<Json>;
+          number: string;
+          order_id: string;
+          reason: string;
+          refund_id: string;
+          totals: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          fiscal_year?: string;
+          id?: string;
+          invoice_id?: string;
+          issued_at?: string;
+          lines?: NonNullable<Json>;
+          number?: string;
+          order_id?: string;
+          reason?: string;
+          refund_id?: string;
+          totals?: NonNullable<Json>;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "credit_notes_invoice_id_fkey";
+            columns: ["invoice_id"];
+            isOneToOne: false;
+            referencedRelation: "invoices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "credit_notes_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "credit_notes_refund_id_fkey";
+            columns: ["refund_id"];
+            isOneToOne: true;
+            referencedRelation: "refunds";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       document_sequences: {
         Row: {
           created_at: string;
@@ -1238,7 +1305,13 @@ export type Database = {
           amount_paise: number;
           created_at: string;
           created_by: string | null;
+          credit_lines: Json | null;
+          credit_totals: Json | null;
+          error: string | null;
           id: string;
+          include_shipping: boolean;
+          items: NonNullable<Json>;
+          kind: string;
           order_id: string;
           payment_id: string;
           razorpay_refund_id: string | null;
@@ -1250,7 +1323,13 @@ export type Database = {
           amount_paise: number;
           created_at?: string;
           created_by?: string | null;
+          credit_lines?: Json | null;
+          credit_totals?: Json | null;
+          error?: string | null;
           id?: string;
+          include_shipping?: boolean;
+          items?: NonNullable<Json>;
+          kind?: string;
           order_id: string;
           payment_id: string;
           razorpay_refund_id?: string | null;
@@ -1262,7 +1341,13 @@ export type Database = {
           amount_paise?: number;
           created_at?: string;
           created_by?: string | null;
+          credit_lines?: Json | null;
+          credit_totals?: Json | null;
+          error?: string | null;
           id?: string;
+          include_shipping?: boolean;
+          items?: NonNullable<Json>;
+          kind?: string;
           order_id?: string;
           payment_id?: string;
           razorpay_refund_id?: string | null;
@@ -1283,6 +1368,56 @@ export type Database = {
             columns: ["payment_id"];
             isOneToOne: false;
             referencedRelation: "payments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      shipments: {
+        Row: {
+          courier: string;
+          created_at: string;
+          created_by: string | null;
+          delivered_at: string | null;
+          id: string;
+          order_id: string;
+          rto_at: string | null;
+          rto_received_at: string | null;
+          shipped_at: string;
+          tracking_number: string;
+          updated_at: string;
+        };
+        Insert: {
+          courier: string;
+          created_at?: string;
+          created_by?: string | null;
+          delivered_at?: string | null;
+          id?: string;
+          order_id: string;
+          rto_at?: string | null;
+          rto_received_at?: string | null;
+          shipped_at?: string;
+          tracking_number: string;
+          updated_at?: string;
+        };
+        Update: {
+          courier?: string;
+          created_at?: string;
+          created_by?: string | null;
+          delivered_at?: string | null;
+          id?: string;
+          order_id?: string;
+          rto_at?: string | null;
+          rto_received_at?: string | null;
+          shipped_at?: string;
+          tracking_number?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: true;
+            referencedRelation: "orders";
             referencedColumns: ["id"];
           },
         ];
@@ -1565,6 +1700,18 @@ export type Database = {
       };
     };
     Functions: {
+      admin_low_stock: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          available: number;
+          colour: string;
+          product_id: string;
+          product_title: string;
+          size: string;
+          sku: string;
+          variant_id: string;
+        }[];
+      };
       cart_add_item: {
         Args: { p_qty: number; p_variant_id: string };
         Returns: {
@@ -1659,6 +1806,14 @@ export type Database = {
         };
         Returns: string;
       };
+      complete_refund: {
+        Args: {
+          p_razorpay_refund_id: string;
+          p_refund_id: string;
+          p_status: string;
+        };
+        Returns: string;
+      };
       coupon_for_checkout: {
         Args: { p_code: string; p_email: string; p_phone: string };
         Returns: {
@@ -1695,6 +1850,10 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
+      fail_refund: {
+        Args: { p_error: string; p_refund_id: string };
+        Returns: undefined;
+      };
       late_payment_commit: {
         Args: {
           p_amount_paise: number;
@@ -1705,6 +1864,14 @@ export type Database = {
           p_razorpay_payment_id: string;
         };
         Returns: boolean;
+      };
+      mark_order_delivered: {
+        Args: { p_actor_id: string; p_order_id: string };
+        Returns: undefined;
+      };
+      mark_order_rto: {
+        Args: { p_actor_id: string; p_order_id: string };
+        Returns: undefined;
       };
       mark_payment_failed: {
         Args: {
@@ -1733,6 +1900,22 @@ export type Database = {
           total_paise: number;
         }[];
       };
+      prepare_refund: {
+        Args: {
+          p_actor_id: string;
+          p_include_shipping: boolean;
+          p_items: Json;
+          p_kind: string;
+          p_order_id: string;
+          p_reason: string;
+        };
+        Returns: {
+          amount_paise: number;
+          order_number: string;
+          razorpay_payment_id: string;
+          refund_id: string;
+        }[];
+      };
       record_auto_refund: {
         Args: {
           p_amount_paise: number;
@@ -1747,9 +1930,34 @@ export type Database = {
         Args: { p_order_id: string; p_razorpay_order_id: string };
         Returns: undefined;
       };
+      record_refund_status: {
+        Args: { p_razorpay_refund_id: string; p_status: string };
+        Returns: string;
+      };
+      refund_preview: {
+        Args: {
+          p_include_shipping: boolean;
+          p_items: Json;
+          p_order_id: string;
+        };
+        Returns: Json;
+      };
       reserve_stock: { Args: { p_order_id: string }; Returns: undefined };
+      resolve_attention: {
+        Args: { p_actor_id: string; p_note: string; p_order_id: string };
+        Returns: undefined;
+      };
       set_default_address: {
         Args: { p_address_id: string };
+        Returns: undefined;
+      };
+      ship_order: {
+        Args: {
+          p_actor_id: string;
+          p_courier: string;
+          p_order_id: string;
+          p_tracking_number: string;
+        };
         Returns: undefined;
       };
       transition_order: {

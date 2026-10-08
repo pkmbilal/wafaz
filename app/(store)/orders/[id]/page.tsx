@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FileDown } from "lucide-react";
+import { ExternalLink, FileDown } from "lucide-react";
 import { z } from "zod";
 import { OrderStatusTimeline } from "@/components/store/order-status-timeline";
 import { OrderSummary } from "@/components/store/order-summary";
@@ -138,6 +138,26 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
               {address.phone}
             </address>
           </section>
+          {order.shipment && (
+            <section aria-labelledby="tracking-heading" className="flex flex-col gap-1 text-sm">
+              <h2 id="tracking-heading" className="font-sans text-sm font-semibold tracking-normal">
+                Tracking
+              </h2>
+              <p>
+                {order.shipment.courierName} · <span className="font-medium">{order.shipment.trackingNumber}</span>
+              </p>
+              {order.shipment.trackingUrl && (
+                <a
+                  href={order.shipment.trackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-touch w-fit items-center gap-1.5 rounded-sm text-primary outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/60"
+                >
+                  Track your parcel <ExternalLink aria-hidden className="size-4" />
+                </a>
+              )}
+            </section>
+          )}
           {order.invoiceNumber && (
             <Button asChild variant="outline" className="w-full">
               {/* A plain anchor: the route handler streams a PDF download, not a page. */}
@@ -147,6 +167,14 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
               </a>
             </Button>
           )}
+          {order.creditNotes.map((note) => (
+            <Button key={note.id} asChild variant="outline" className="w-full">
+              <a href={withToken(`/api/credit-notes/${note.id}`, query.t)} download>
+                <FileDown aria-hidden />
+                Credit note {note.number} ({formatInr(note.totalPaise)})
+              </a>
+            </Button>
+          ))}
         </aside>
       </div>
     </article>
@@ -154,7 +182,11 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
 }
 
 function invoiceHref(orderId: string, token?: string): string {
-  return token ? `/api/invoices/${orderId}?t=${encodeURIComponent(token)}` : `/api/invoices/${orderId}`;
+  return withToken(`/api/invoices/${orderId}`, token);
+}
+
+function withToken(path: string, token?: string): string {
+  return token ? `${path}?t=${encodeURIComponent(token)}` : path;
 }
 
 function OrderSkeleton() {

@@ -1,0 +1,35 @@
+{
+  "entity": "event",
+  "account_id": "acc_TestAccount01",
+  "event": "refund.processed",
+  "contains": ["refund", "payment"],
+  "payload": {
+    "refund": {
+      "entity": {
+        "id": "{{REFUND_ID}}",
+        "entity": "refund",
+        "amount": "{{AMOUNT}}",
+        "currency": "INR",
+        "payment_id": "{{PAYMENT_ID}}",
+        "notes": "{{NOTES}}",
+        "receipt": null,
+        "status": "processed",
+        "speed_processed": "normal",
+        "created_at": 1791446400
+      }
+    },
+    "payment": {
+      "entity": {
+        "id": "{{PAYMENT_ID}}",
+        "entity": "payment",
+        "amount": "{{AMOUNT}}",
+        "currency": "INR",
+        "status": "refunded",
+        "order_id": "order_unused",
+        "method": "upi",
+        "created_at": 1791446400
+      }
+    }
+  },
+  "created_at": 1791446400
+}
