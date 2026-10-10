@@ -10,6 +10,7 @@ import {
   type CouponRules,
   type QuoteInput,
 } from "@/lib/pricing";
+import { orderStatusSummary } from "@/lib/orders/status";
 import { shippingChargePaise, zoneForState, type ShippingZone } from "@/lib/shipping/zones";
 import { dtdcTrackingUrl } from "@/lib/shipping/dtdc";
 import { indiaPostTrackingUrl } from "@/lib/shipping/indiapost";
@@ -193,8 +194,7 @@ describe("checkoutQuote", () => {
 });
 
 describe("orderStatusSummary", () => {
-  it("marks finished steps done and the next one current", async () => {
-    const { orderStatusSummary } = await import("@/lib/orders/status");
+  it("marks finished steps done and the next one current", () => {
     const confirmed = orderStatusSummary({ orderStatus: "confirmed", paymentStatus: "paid", fulfillmentStatus: "unfulfilled" });
     expect(confirmed.headline).toBe("Order confirmed");
     expect(confirmed.steps.map((s) => s.state)).toEqual(["done", "done", "current", "upcoming", "upcoming"]);

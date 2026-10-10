@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { listingSearchParams, parseListingFilters } from "@/lib/validators/catalog";
 import { discountPercent, formatInr } from "@/lib/format";
 import { compareSizes } from "@/lib/catalog/sizes";
+import { pageWindow } from "@/components/store/listing-pagination";
 
 describe("parseListingFilters", () => {
   it("returns defaults for empty params", () => {
@@ -81,8 +82,7 @@ describe("compareSizes", () => {
 });
 
 describe("pageWindow", () => {
-  it("shows first, last and neighbours with gaps", async () => {
-    const { pageWindow } = await import("@/components/store/listing-pagination");
+  it("shows first, last and neighbours with gaps", () => {
     expect(pageWindow(1, 1)).toEqual([1]);
     expect(pageWindow(1, 3)).toEqual([1, 2, 3]);
     expect(pageWindow(5, 10)).toEqual([1, "gap", 4, 5, 6, "gap", 10]);

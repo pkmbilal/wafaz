@@ -2,6 +2,7 @@ import "server-only";
 import { z } from "zod";
 import type { Notice } from "@/lib/notifications";
 import { completeRefund } from "@/lib/orders/refunds";
+import { reportError } from "@/lib/observability";
 import { verifyWebhookSignature } from "@/lib/razorpay";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
@@ -103,7 +104,8 @@ export async function handleRazorpayWebhook(
       .select("id")
       .single();
     if (error) {
-      // A concurrent delivery of the same event inserted first; let Razorpay retry.
+      // Usually a concurrent delivery of the same event inserted first; let Razorpay retry.
+      if (error.code !== "23505") reportError("razorpay-webhook", error, { stage: "insert", event: event.event });
       return { status: 500, body: { ok: false, error: "event insert failed" } };
     }
     rowId = inserted.id;
@@ -125,6 +127,7 @@ export async function handleRazorpayWebhook(
     const message = e instanceof Error ? e.message.slice(0, 2000) : "unknown error";
     await admin.from("webhook_events").update({ status: "failed", error: message }).eq("id", rowId!);
     console.error("[razorpay-webhook] processing failed", event.event);
+    reportError("razorpay-webhook", e, { stage: "process", event: event.event, eventId: request.eventId });
     return { status: 500, body: { ok: false, error: "processing failed" } };
   }
 }

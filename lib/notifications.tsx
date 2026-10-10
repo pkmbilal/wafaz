@@ -9,6 +9,7 @@ import { OrderRefundedEmail } from "@/emails/order-refunded";
 import { OrderShippedEmail } from "@/emails/order-shipped";
 import { type EmailOutcome, type EmailTransport, sendEmail } from "@/lib/email";
 import { publicEnv } from "@/lib/env";
+import { reportError } from "@/lib/observability";
 import { orderLinkToken } from "@/lib/orders/link-token";
 import type { OrderAddress } from "@/lib/orders/queries";
 import { hashIdentifier } from "@/lib/request";
@@ -315,6 +316,7 @@ export async function sendNotices(notices: Notice[], deps: Deps): Promise<void> 
       await sendNotice(notice, deps);
     } catch (e) {
       console.error(`[notifications] ${notice.type} failed`, e instanceof Error ? e.message : e);
+      reportError("notifications", e, { type: notice.type });
     }
   }
 }
