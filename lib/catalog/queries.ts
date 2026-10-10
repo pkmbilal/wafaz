@@ -441,3 +441,26 @@ export async function getStaticSlugs() {
     pages: pages.map((p) => p.slug),
   };
 }
+
+export type SitemapEntry = { path: string; updatedAt: string };
+
+// RLS limits anon reads to active products, collections, categories and published pages,
+// so only public URLs end up in the sitemap.
+export async function getSitemapEntries(): Promise<SitemapEntry[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(cacheTags.catalog);
+
+  const supabase = createPublicClient();
+  const [products, collections, categories, pages] = await Promise.all([
+    supabase.from("products").select("slug, updated_at").then(check),
+    supabase.from("collections").select("slug, updated_at").then(check),
+    supabase.from("categories").select("slug, updated_at").then(check),
+    supabase.from("pages").select("slug, updated_at").then(check),
+  ]);
+  return [
+    ...products.map((r) => ({ path: `/products/${r.slug}`, updatedAt: r.updated_at })),
+    ...[...collections, ...categories].map((r) => ({ path: `/collections/${r.slug}`, updatedAt: r.updated_at })),
+    ...pages.map((r) => ({ path: `/pages/${r.slug}`, updatedAt: r.updated_at })),
+  ];
+}

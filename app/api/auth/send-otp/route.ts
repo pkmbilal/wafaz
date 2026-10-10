@@ -2,6 +2,7 @@ import { Webhook, WebhookVerificationError } from "standardwebhooks";
 import { z } from "zod";
 import { serverEnv } from "@/lib/env.server";
 import { normalizeIndianMobile } from "@/lib/validators/auth";
+import { reportError } from "@/lib/observability";
 import { RATE_LIMITS, rateLimit } from "@/lib/rate-limit";
 import { hashIdentifier } from "@/lib/request";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
   } catch (err) {
     if (err instanceof WebhookVerificationError) return hookError(401, "Invalid signature");
     console.error("[send-otp] hook misconfigured");
+    reportError("auth-hook", err, { stage: "verify" });
     return hookError(500, "Could not send the code");
   }
 
@@ -56,12 +58,13 @@ export async function POST(req: Request) {
       provider_message_id: result.status === "sent" ? result.messageId : null,
     });
   if (logError) {
-    // TODO(owner): report to Sentry once it is set up (Engineering milestone).
     console.error("[send-otp] could not record hook event", logError.code);
+    reportError("auth-hook", logError, { stage: "record-event" });
   }
 
   if (result.status === "failed") {
     console.error("[send-otp] WhatsApp send failed", result.error);
+    reportError("auth-hook", new Error(`WhatsApp OTP send failed: ${result.error}`), { stage: "send" });
     return hookError(502, "We couldn't send the WhatsApp code. Try email instead.");
   }
 

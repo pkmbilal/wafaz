@@ -5,6 +5,7 @@ import { z } from "zod";
 import { RATE_LIMITS, rateLimit } from "@/lib/rate-limit";
 import { clientIp } from "@/lib/request";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { reportError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 import { emailSchema, phoneSchema, safeNextPath } from "@/lib/validators/auth";
 
@@ -76,8 +77,8 @@ export async function finishLogin(
   });
   if (error) {
     // The login itself succeeded; the guest data stays on the guest uid until cleanup.
-    // TODO(owner): report to Sentry once it is set up (Engineering milestone).
     console.error("[login] guest merge failed", error.code);
+    reportError("guest-merge", error);
   }
   return { ok: true, redirectTo };
 }

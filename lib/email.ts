@@ -3,6 +3,7 @@ import { render } from "@react-email/components";
 import { Resend } from "resend";
 import { plainTextOptions } from "@/emails/components";
 import { serverEnv } from "@/lib/env.server";
+import { reportError } from "@/lib/observability";
 import { hashIdentifier } from "@/lib/request";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
@@ -100,6 +101,7 @@ export async function sendEmail(
     return await finish("sent", { id });
   } catch (e) {
     console.error(`[email] ${message.kind} failed`, message.dedupeKey);
+    reportError("email", e, { kind: message.kind });
     return await finish("failed", { error: e instanceof Error ? e.message : "unknown error" });
   }
 }
