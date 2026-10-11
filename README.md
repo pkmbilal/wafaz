@@ -82,4 +82,5 @@ Hosting is Vercel **Pro** + Supabase **Pro** (Hobby forbids commercial use).
    - Tax slab basis and shipping tax rate, confirmed by the CA.
    - Final text for every policy page.
    - Real products in place of the samples.
-   - An owner account: set `profiles.role = 'owner'` for the owner's user.
+   - An owner account: create the user with an email + password (Supabase dashboard → Authentication → Add user,
+     auto-confirm), then set `profiles.role = 'owner'` for it. Admins sign in at `/admin/login`.

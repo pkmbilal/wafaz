@@ -8,6 +8,8 @@ export const RATE_LIMITS = {
   otpPerIp: { max: 20, windowSeconds: 3600 },
   couponApply: { max: 10, windowSeconds: 600 },
   orderCreate: { max: 5, windowSeconds: 600 },
+  // TODO(owner): confirm the admin password sign-in limit (per email and per IP).
+  adminLogin: { max: 5, windowSeconds: 900 },
 } as const;
 
 type Limit = (typeof RATE_LIMITS)[keyof typeof RATE_LIMITS];

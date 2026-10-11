@@ -27,7 +27,7 @@ async function lookupAdmin(): Promise<Lookup> {
 // Route guard for admin pages. RLS enforces the same rule in the database.
 export async function requireAdmin(): Promise<AdminSession> {
   const admin = await lookupAdmin();
-  if (admin.status === "signed_out") redirect("/login?next=/admin");
+  if (admin.status === "signed_out") redirect("/admin/login");
   if (admin.status === "not_admin") redirect("/");
   return { userId: admin.userId, role: admin.role };
 }

@@ -39,10 +39,14 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
   const isDevShowcase = pathname.startsWith("/admin/dev/");
-  if (isAdminPage && !isDevShowcase && (!data?.claims.sub || data.claims.is_anonymous)) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", pathname);
-    const redirect = NextResponse.redirect(loginUrl);
+  const isAdminLogin = pathname === "/admin/login";
+  if (
+    isAdminPage &&
+    !isDevShowcase &&
+    !isAdminLogin &&
+    (!data?.claims.sub || data.claims.is_anonymous)
+  ) {
+    const redirect = NextResponse.redirect(new URL("/admin/login", request.url));
     for (const cookie of response.cookies.getAll()) {
       redirect.cookies.set(cookie);
     }
