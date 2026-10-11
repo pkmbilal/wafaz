@@ -43,7 +43,8 @@ export function Header({ categories }: { categories: NavCategory[] }) {
             </Link>
           </Button>
           <Button asChild variant="ghost" size="icon" className="max-md:hidden">
-            <Link href="/account" aria-label="Account">
+            {/* No prefetch: /account redirects server-side, and a prefetched copy leaves the click stuck. */}
+            <Link href="/account" prefetch={false} aria-label="Account">
               <LinkPending>
                 <User />
               </LinkPending>
