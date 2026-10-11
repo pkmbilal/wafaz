@@ -17,8 +17,8 @@ export function ColourSwatch({
 }) {
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-2 text-sm">
-        <span className="font-semibold">Colour:</span> <span className="text-muted-foreground">{value}</span>
+      <legend className="mb-3 eyebrow">
+        <span className="text-foreground">Colour</span> <span className="ml-1 text-muted-foreground normal-case tracking-normal">{value}</span>
       </legend>
       <div className="flex flex-wrap gap-2">
         {colours.map((c) => (
@@ -34,13 +34,13 @@ export function ColourSwatch({
             <span
               title={c.name}
               className={cn(
-                "flex size-touch items-center justify-center rounded-full border-2 border-transparent transition-colors",
-                "peer-checked:border-primary peer-focus-visible:ring-3 peer-focus-visible:ring-ring/60",
+                "flex size-touch items-center justify-center rounded-full border border-transparent transition-colors hover:border-border",
+                "peer-checked:border-foreground peer-focus-visible:ring-3 peer-focus-visible:ring-ring/60",
               )}
             >
               <span
                 aria-hidden
-                className="size-8 rounded-full border border-border"
+                className="size-8 rounded-full ring-1 ring-border ring-inset"
                 style={{ backgroundColor: c.hex ?? undefined }}
               />
             </span>

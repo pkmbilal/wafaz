@@ -9,18 +9,21 @@ import { STORE_NAME } from "@/lib/site";
 export function Header({ categories }: { categories: NavCategory[] }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4 lg:px-6">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4 lg:h-20 lg:px-6">
         <MobileMenu categories={categories} />
 
         <Link
           href="/"
-          className="font-heading text-3xl leading-none font-semibold tracking-tight text-primary max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2"
+          className="font-heading text-2xl leading-none font-medium tracking-[0.14em] text-foreground uppercase max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2 lg:text-3xl"
         >
           {STORE_NAME}
         </Link>
 
-        <nav aria-label="Main" className="ml-10 hidden lg:block">
-          <ul className="flex items-center gap-1">
+        <nav aria-label="Main" className="ml-12 hidden lg:block">
+          <ul className="flex items-center gap-2">
+            <li>
+              <NavLink href="/shop">Shop all</NavLink>
+            </li>
             <li>
               <NavLink href="/collections/new-arrivals">New Arrivals</NavLink>
             </li>
@@ -54,9 +57,9 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="inline-flex min-h-touch items-center rounded-md px-3 text-sm font-medium tracking-wide text-foreground/80 transition-colors outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/60"
+      className="inline-flex min-h-touch items-center rounded-md px-3 eyebrow text-foreground/80 transition-colors outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/60"
     >
-      {children}
+      <span className="link-underline">{children}</span>
     </Link>
   );
 }

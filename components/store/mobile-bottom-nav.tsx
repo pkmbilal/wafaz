@@ -9,7 +9,7 @@ import { useCart } from "@/components/store/cart-provider";
 
 const ITEMS = [
   { label: "Home", href: "/", icon: Home, match: (p: string) => p === "/" },
-  { label: "Shop", href: "/collections/new-arrivals", icon: LayoutGrid, match: (p: string) => p.startsWith("/collections") || p.startsWith("/products") },
+  { label: "Shop", href: "/shop", icon: LayoutGrid, match: (p: string) => p.startsWith("/shop") || p.startsWith("/collections") || p.startsWith("/products") },
   { label: "Search", href: "/search", icon: Search, match: (p: string) => p.startsWith("/search") },
   { label: "Cart", href: "/cart", icon: ShoppingBag, match: (p: string) => p.startsWith("/cart") },
   { label: "Account", href: "/account", icon: User, match: (p: string) => p.startsWith("/account") },
@@ -33,12 +33,12 @@ export function MobileBottomNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-14 flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-medium outline-none focus-visible:bg-muted",
+                  "flex h-14 flex-col items-center justify-center gap-0.5 text-[0.625rem] font-medium tracking-[0.12em] uppercase outline-none focus-visible:bg-muted",
                   active ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 <span className="relative">
-                  <Icon aria-hidden className="size-5" strokeWidth={active ? 2.25 : 1.75} />
+                  <Icon aria-hidden className="size-5" strokeWidth={active ? 1.75 : 1.25} />
                   {href === "/cart" && <CartCount count={count} className="-top-1.5 -right-2.5" />}
                 </span>
                 {label}

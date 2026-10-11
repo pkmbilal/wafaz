@@ -44,20 +44,31 @@ export function EmailLayout({
     <Html lang="en">
       <Head />
       <Preview>{preview}</Preview>
-      <Body style={{ backgroundColor: c.background, margin: 0, padding: "24px 0" }}>
+      <Body style={{ backgroundColor: c.muted, margin: 0, padding: "24px 0" }}>
         <Container
           style={{
             backgroundColor: c.card,
             border: `1px solid ${c.border}`,
-            borderRadius: "6px",
+            borderRadius: "2px",
             maxWidth: "560px",
-            padding: "28px 24px",
+            padding: "32px 28px",
           }}
         >
-          <Text style={{ fontFamily: serif, fontSize: "26px", color: c.primary, margin: "0 0 20px", fontWeight: 600 }}>
+          <Text
+            style={{
+              fontFamily: serif,
+              fontSize: "24px",
+              color: c.foreground,
+              margin: "0 0 8px",
+              fontWeight: 500,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+            }}
+          >
             {STORE_NAME}
           </Text>
-          <Heading as="h1" style={{ fontFamily: serif, fontSize: "24px", color: c.foreground, margin: "0 0 16px" }}>
+          <Hr style={{ borderColor: c.accent, width: "48px", margin: "0 0 24px" }} />
+          <Heading as="h1" style={{ fontFamily: serif, fontSize: "26px", fontWeight: 400, color: c.foreground, margin: "0 0 16px" }}>
             {heading}
           </Heading>
           {children}
@@ -88,10 +99,12 @@ export function PrimaryButton({ href, children }: { href: string; children: Reac
           backgroundColor: c.primary,
           color: c.primaryForeground,
           fontFamily: sans,
-          fontSize: "15px",
-          fontWeight: 600,
-          borderRadius: "6px",
-          padding: "12px 20px",
+          fontSize: "12px",
+          fontWeight: 500,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          borderRadius: "2px",
+          padding: "14px 24px",
           textDecoration: "none",
         }}
       >

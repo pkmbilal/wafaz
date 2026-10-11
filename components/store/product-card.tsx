@@ -15,8 +15,8 @@ export function ProductCard({ product, eager = false }: ProductCardProps) {
   const onSale = product.pricePaise < product.mrpPaise;
 
   return (
-    <article className="group relative flex flex-col gap-2">
-      <div className="relative aspect-4/5 overflow-hidden rounded-md bg-muted">
+    <article className="group relative flex flex-col gap-3">
+      <div className="relative aspect-4/5 overflow-hidden bg-muted">
         {product.imageKey ? (
           <Image
             src={mediaUrl(product.imageKey)}
@@ -24,20 +24,20 @@ export function ProductCard({ product, eager = false }: ProductCardProps) {
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             loading={eager ? "eager" : "lazy"}
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
           />
         ) : null}
-        <div className="absolute top-2 left-2 flex flex-col items-start gap-1">
+        <div className="absolute top-3 left-3 flex flex-col items-start gap-1">
           {!product.inStock && <Badge variant="soldout">Sold out</Badge>}
           {product.inStock && product.isNew && <Badge variant="new">New</Badge>}
           {product.inStock && onSale && <Badge variant="sale">Sale</Badge>}
         </div>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <h3 className="font-sans text-sm leading-snug font-medium tracking-normal text-foreground">
+      <div className="flex flex-col gap-1.5">
+        <h3 className="font-sans text-[0.8125rem] leading-snug font-normal tracking-wide text-foreground/90">
           {/* The stretched link makes the whole card clickable with a single tab stop. */}
-          <Link href={`/products/${product.slug}`} className="outline-none after:absolute after:inset-0 after:rounded-md focus-visible:after:ring-3 focus-visible:after:ring-ring/60">
+          <Link href={`/products/${product.slug}`} className="outline-none after:absolute after:inset-0 focus-visible:after:ring-3 focus-visible:after:ring-ring/60">
             {product.title}
           </Link>
         </h3>
@@ -48,7 +48,7 @@ export function ProductCard({ product, eager = false }: ProductCardProps) {
               <li
                 key={c.name}
                 title={c.name}
-                className="size-3.5 rounded-full border border-border"
+                className="size-3 rounded-full ring-1 ring-border ring-offset-1"
                 // Colour values come from product data, not the design system.
                 style={{ backgroundColor: c.hex ?? undefined }}
               />
@@ -68,7 +68,7 @@ export function ProductGrid({
   eagerCount?: number;
 }) {
   return (
-    <ul className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
+    <ul className="grid grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-14">
       {products.map((p, i) => (
         <li key={p.id}>
           <ProductCard product={p} eager={i < eagerCount} />

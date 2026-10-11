@@ -28,10 +28,11 @@ export default async function ContentPage({ params }: PageProps<"/pages/[slug]">
   const paragraphs = page.body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-8 lg:px-6">
+    <article className="mx-auto w-full max-w-2xl px-4 py-8 lg:px-6 lg:py-12">
       <Breadcrumbs items={[]} current={page.title} />
-      <h1 className="mb-6 text-4xl font-semibold sm:text-5xl">{page.title}</h1>
-      <div className="flex flex-col gap-4 leading-relaxed text-foreground/90">
+      <h1 className="mb-4 text-4xl sm:text-5xl">{page.title}</h1>
+      <span aria-hidden className="mb-10 block h-px w-12 bg-accent" />
+      <div className="flex flex-col gap-5 text-[0.9375rem] leading-[1.8] text-foreground/85">
         {paragraphs.map((p, i) => (
           <p key={i} className="whitespace-pre-line">
             {p}

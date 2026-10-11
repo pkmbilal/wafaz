@@ -37,7 +37,7 @@ export const pdfStyles = StyleSheet.create({
   row: { flexDirection: "row" },
   between: { flexDirection: "row", justifyContent: "space-between" },
   // Large text needs its own line height: the page's 1.4 is resolved at 8pt and would overlap.
-  brand: { fontSize: 18, lineHeight: 1.2, marginBottom: 4, fontWeight: 700, color: brandColors.primary },
+  brand: { fontSize: 18, lineHeight: 1.2, marginBottom: 4, fontWeight: 700, color: brandColors.foreground, letterSpacing: 1.5, textTransform: "uppercase" },
   title: { fontSize: 12, lineHeight: 1.2, marginBottom: 2, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" },
   label: { fontSize: 7, color: brandColors.mutedForeground, textTransform: "uppercase", letterSpacing: 0.5 },
   bold: { fontWeight: 700 },

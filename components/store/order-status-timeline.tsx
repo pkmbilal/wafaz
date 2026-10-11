@@ -14,9 +14,9 @@ export function OrderStatusTimeline({ steps }: { steps: TimelineStep[] }) {
           <div className="flex flex-col items-center sm:w-full sm:flex-row">
             <span
               className={cn(
-                "flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
-                step.state === "done" && "border-primary bg-primary text-primary-foreground",
-                step.state === "current" && "border-primary text-primary",
+                "flex size-7 shrink-0 items-center justify-center rounded-full border text-xs font-medium",
+                step.state === "done" && "border-accent bg-accent text-accent-foreground",
+                step.state === "current" && "border-foreground text-foreground",
                 step.state === "upcoming" && "border-border text-muted-foreground",
               )}
             >
@@ -27,7 +27,7 @@ export function OrderStatusTimeline({ steps }: { steps: TimelineStep[] }) {
                 aria-hidden
                 className={cn(
                   "h-5 w-px sm:h-px sm:w-full sm:flex-1",
-                  step.state === "done" ? "bg-primary" : "bg-border",
+                  step.state === "done" ? "bg-accent" : "bg-border",
                 )}
               />
             )}

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default function SearchPage({ searchParams }: PageProps<"/search">) {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">
-      <h1 className="mb-6 text-4xl font-semibold sm:text-5xl">Search</h1>
+      <h1 className="mb-8 text-4xl sm:text-5xl">Search</h1>
 
       <Suspense fallback={<SearchForm />}>
         <SearchFormWithQuery searchParams={searchParams} />
@@ -57,7 +57,7 @@ function SearchForm({ defaultValue = "" }: { defaultValue?: string }) {
         placeholder="Search kurtis, co-ords, fabrics…"
         maxLength={100}
         autoComplete="off"
-        className="min-h-touch flex-1 rounded-md border border-input bg-background px-4 text-base outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="min-h-12 flex-1 border-0 border-b border-foreground/40 bg-transparent px-1 text-lg outline-none placeholder:text-muted-foreground focus-visible:border-foreground"
       />
       <Button type="submit" aria-label="Search">
         <Search />

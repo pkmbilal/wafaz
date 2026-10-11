@@ -28,12 +28,12 @@ export function ProductGallery({ media, title }: { media: ProductMedia[]; title:
   );
 
   if (media.length === 0) {
-    return <div className="aspect-4/5 w-full rounded-md bg-muted" />;
+    return <div className="aspect-4/5 w-full bg-muted" />;
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <Carousel setApi={setApi} aria-label={`${title} images`} className="overflow-hidden rounded-md bg-muted">
+      <Carousel setApi={setApi} aria-label={`${title} images`} className="overflow-hidden bg-muted">
         <CarouselContent className="ml-0">
           {media.map((m, i) => (
             <CarouselItem key={m.id} className="pl-0">
@@ -69,8 +69,8 @@ export function ProductGallery({ media, title }: { media: ProductMedia[]; title:
                 aria-label={`Show image ${i + 1}`}
                 aria-current={i === current}
                 className={cn(
-                  "relative block aspect-4/5 w-16 overflow-hidden rounded-sm border-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/60",
-                  i === current ? "border-primary" : "border-transparent opacity-70 hover:opacity-100",
+                  "relative block aspect-4/5 w-16 overflow-hidden border-b-2 outline-none transition-opacity focus-visible:ring-3 focus-visible:ring-ring/60",
+                  i === current ? "border-foreground" : "border-transparent opacity-60 hover:opacity-100",
                 )}
               >
                 <Image src={mediaUrl(m.key)} alt="" fill sizes="64px" className="object-cover" />

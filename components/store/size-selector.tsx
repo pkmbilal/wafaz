@@ -28,7 +28,7 @@ export function SizeSelector({
 
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="mb-2 text-sm font-semibold">Size</legend>
+      <legend className="mb-3 eyebrow text-foreground">Size</legend>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => {
           const left = available[o.variantId] ?? 0;
@@ -46,12 +46,12 @@ export function SizeSelector({
               />
               <span
                 className={cn(
-                  "flex min-h-touch min-w-touch items-center justify-center rounded-md border px-3 text-sm font-medium transition-colors",
+                  "flex min-h-touch min-w-12 items-center justify-center rounded-md border px-3 text-sm transition-colors",
                   "peer-focus-visible:ring-3 peer-focus-visible:ring-ring/60",
-                  "peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground",
+                  "peer-checked:border-foreground peer-checked:bg-foreground peer-checked:text-background",
                   soldOut
-                    ? "border-border bg-muted text-muted-foreground line-through"
-                    : "border-input bg-background hover:border-primary",
+                    ? "border-border bg-muted/60 text-muted-foreground/70 line-through"
+                    : "border-input bg-background hover:border-foreground",
                 )}
               >
                 {o.size}
@@ -71,10 +71,10 @@ export function SizeSelector({
 export function SizeSelectorSkeleton({ count }: { count: number }) {
   return (
     <div className="flex flex-col gap-2" aria-hidden>
-      <Skeleton className="mb-2 h-5 w-12" />
+      <Skeleton className="mb-3 h-4 w-12" />
       <div className="flex flex-wrap gap-2">
         {Array.from({ length: count }, (_, i) => (
-          <Skeleton key={i} className="size-touch" />
+          <Skeleton key={i} className="h-touch w-12" />
         ))}
       </div>
     </div>

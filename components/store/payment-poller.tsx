@@ -33,7 +33,7 @@ export function PaymentPoller() {
   }, [router]);
 
   return (
-    <div role="status" aria-live="polite" className="flex items-start gap-3 rounded-lg border border-border bg-muted p-4">
+    <div role="status" aria-live="polite" className="flex items-start gap-3 bg-secondary p-5">
       {!timedOut && <Loader2 aria-hidden className="mt-0.5 size-5 shrink-0 animate-spin text-primary motion-reduce:animate-none" />}
       <div className="flex flex-col gap-1 text-sm">
         <p className="font-medium">

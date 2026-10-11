@@ -62,7 +62,7 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
         <p className="text-sm text-muted-foreground">
           Order {order.number} · {dateFormat.format(new Date(order.createdAt))}
         </p>
-        <h1 className="text-4xl font-semibold sm:text-5xl">
+        <h1 className="text-4xl sm:text-5xl">
           {confirming ? "Thank you!" : status.headline}
         </h1>
         {order.invoiceNumber && (
@@ -78,7 +78,7 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
       )}
 
       {order.orderStatus === "expired" && (
-        <div className="flex flex-col items-start gap-3 rounded-lg border border-border bg-muted p-4 text-sm">
+        <div className="flex flex-col items-start gap-3 bg-secondary p-5 text-sm">
           <p>The payment window closed before we received your payment, so the items were released.</p>
           <Button asChild variant="outline">
             <Link href="/cart">Back to cart</Link>
@@ -88,7 +88,7 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
 
       <div className="grid items-start gap-8 lg:grid-cols-[1fr_20rem]">
         <section aria-labelledby="items-heading" className="flex flex-col gap-4">
-          <h2 id="items-heading" className="text-2xl font-semibold">
+          <h2 id="items-heading" className="text-3xl">
             Items
           </h2>
           <ul className="flex flex-col divide-y divide-border border-y border-border">
@@ -102,24 +102,24 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
                 <div className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
                   <Link
                     href={`/products/${item.productSlug}`}
-                    className="rounded-sm font-medium outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/60"
+                    className="rounded-sm outline-none underline-offset-4 hover:underline focus-visible:ring-3 focus-visible:ring-ring/60"
                   >
                     {item.title}
                   </Link>
                   <p className="text-xs text-muted-foreground">
                     {item.colour} · Size {item.size} · Qty {item.qty}
                   </p>
-                  <p className="font-semibold tabular-nums">{formatInr(item.lineNetPaise)}</p>
+                  <p className="font-medium tabular-nums">{formatInr(item.lineNetPaise)}</p>
                 </div>
               </li>
             ))}
           </ul>
         </section>
 
-        <aside className="flex flex-col gap-6 rounded-lg border border-border bg-card p-5 shadow-soft">
+        <aside className="flex flex-col gap-6 bg-secondary p-6">
           <OrderSummary totals={order} />
           <section aria-labelledby="ship-heading" className="flex flex-col gap-1 text-sm">
-            <h2 id="ship-heading" className="font-sans text-sm font-semibold tracking-normal">
+            <h2 id="ship-heading" className="eyebrow text-foreground">
               Delivering to
             </h2>
             <address className="leading-relaxed text-foreground/80 not-italic">
@@ -140,7 +140,7 @@ async function OrderContents({ params, searchParams }: PageProps<"/orders/[id]">
           </section>
           {order.shipment && (
             <section aria-labelledby="tracking-heading" className="flex flex-col gap-1 text-sm">
-              <h2 id="tracking-heading" className="font-sans text-sm font-semibold tracking-normal">
+              <h2 id="tracking-heading" className="eyebrow text-foreground">
                 Tracking
               </h2>
               <p>

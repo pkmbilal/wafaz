@@ -25,8 +25,8 @@ export function CartPageView({ initial }: { initial: CartSnapshot }) {
       <EmptyState
         icon={ShoppingBag}
         title="Your cart is empty"
-        description="Find something you love in our latest collection."
-        action={{ label: "Shop new arrivals", href: "/collections/new-arrivals" }}
+        description="Find something you love in our collection."
+        action={{ label: "Shop all", href: "/shop" }}
       />
     );
   }
@@ -47,9 +47,9 @@ export function CartPageView({ initial }: { initial: CartSnapshot }) {
       </ul>
       <section
         aria-label="Order summary"
-        className="rounded-lg border border-border bg-card p-5 shadow-soft lg:sticky lg:top-24"
+        className="bg-secondary p-6 lg:sticky lg:top-28"
       >
-        <h2 className="mb-4 text-2xl font-semibold">Summary</h2>
+        <h2 className="mb-5 eyebrow text-foreground">Summary</h2>
         <CartSummary cart={cart} />
       </section>
     </div>

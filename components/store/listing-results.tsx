@@ -43,8 +43,8 @@ export async function ListingResults({
       <FilterSidebar {...panelProps} />
 
       <section aria-label="Products" className="min-w-0 flex-1">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground" aria-live="polite">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+          <p className="eyebrow text-muted-foreground" aria-live="polite">
             {listing.total} {listing.total === 1 ? "product" : "products"}
           </p>
           <div className="flex items-center gap-2">
@@ -86,7 +86,7 @@ export function ListingSkeleton() {
       </div>
       <div className="flex-1">
         <Skeleton className="mb-6 h-11 w-full" />
-        <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-10 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:gap-y-14">
           {Array.from({ length: 8 }, (_, i) => (
             <div key={i} className="flex flex-col gap-2">
               <Skeleton className="aspect-4/5 w-full" />

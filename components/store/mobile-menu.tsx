@@ -27,9 +27,12 @@ export function MobileMenu({ categories }: { categories: NavCategory[] }) {
       </SheetTrigger>
       <SheetContent side="left" className="w-[85%] max-w-sm overflow-y-auto">
         <SheetHeader className="border-b border-border">
-          <SheetTitle>Shop</SheetTitle>
+          <SheetTitle className="eyebrow text-muted-foreground">Shop</SheetTitle>
         </SheetHeader>
         <nav aria-label="Mobile" className="flex flex-col px-2 pb-6">
+          <MenuLink href="/shop" onNavigate={close}>
+            Shop all
+          </MenuLink>
           <MenuLink href="/collections/new-arrivals" onNavigate={close}>
             New Arrivals
           </MenuLink>
@@ -87,7 +90,7 @@ function MenuLink({
       className={
         subtle
           ? "flex min-h-touch items-center rounded-md px-3 text-sm text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/60"
-          : "flex min-h-touch items-center rounded-md px-3 font-heading text-lg font-semibold outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/60"
+          : "flex min-h-12 items-center rounded-md px-3 font-heading text-2xl outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/60"
       }
     >
       {children}

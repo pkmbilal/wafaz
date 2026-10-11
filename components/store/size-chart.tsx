@@ -9,14 +9,14 @@ export function SizeChart({ name, data }: { name: string; data: SizeChartData })
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="link" size="sm" className="self-start px-0">
+        <Button variant="link" size="sm" className="self-start px-0 text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground">
           <Ruler />
           Size chart
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Size chart</DialogTitle>
+          <DialogTitle className="font-heading text-2xl font-normal">Size chart</DialogTitle>
           <DialogDescription>
             {name} · measurements in {data.unit === "in" ? "inches" : data.unit}
           </DialogDescription>
@@ -26,7 +26,7 @@ export function SizeChart({ name, data }: { name: string; data: SizeChartData })
             <thead>
               <tr className="border-b border-border">
                 {data.columns.map((c) => (
-                  <th key={c} scope="col" className="px-2 py-2 text-left font-semibold">
+                  <th key={c} scope="col" className="px-2 py-3 text-left eyebrow text-muted-foreground">
                     {c}
                   </th>
                 ))}
@@ -37,11 +37,11 @@ export function SizeChart({ name, data }: { name: string; data: SizeChartData })
                 <tr key={String(row[0])} className="border-b border-border/60 last:border-0">
                   {row.map((cell, i) =>
                     i === 0 ? (
-                      <th key={i} scope="row" className="px-2 py-2 text-left font-medium">
+                      <th key={i} scope="row" className="px-2 py-3 text-left font-medium">
                         {cell}
                       </th>
                     ) : (
-                      <td key={i} className="px-2 py-2 text-muted-foreground">
+                      <td key={i} className="px-2 py-3 text-muted-foreground">
                         {cell}
                       </td>
                     ),

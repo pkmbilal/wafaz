@@ -43,7 +43,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
 
       <ProductView product={product} availability={availability} />
 
-      <Accordion type="multiple" defaultValue={["description"]} className="mt-10 max-w-3xl border-t border-border">
+      <Accordion type="multiple" defaultValue={["description"]} className="mt-16 max-w-3xl border-t border-border lg:mt-20">
         {product.description && (
           <AccordionItem value="description">
             <AccordionTrigger>Description</AccordionTrigger>

@@ -29,8 +29,8 @@ export default async function AccountOrdersPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">Orders</h2>
-      <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card">
+      <h2 className="text-3xl">Orders</h2>
+      <ul className="flex flex-col divide-y divide-border border-y border-border">
         {orders.map((order) => {
           const status = orderStatusSummary(order);
           return (

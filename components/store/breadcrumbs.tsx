@@ -16,7 +16,7 @@ export function Breadcrumbs({ items, current }: { items: Crumb[]; current?: stri
   const last = current ?? items[items.length - 1]?.name;
 
   return (
-    <Breadcrumb className="mb-4">
+    <Breadcrumb className="mb-6">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>

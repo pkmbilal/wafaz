@@ -76,10 +76,10 @@ function FilterControls({ facets, filters, defaultSort }: FilterPanelProps) {
                       aria-pressed={selected}
                       onClick={() => apply({ sizes: toggle(filters.sizes, size) })}
                       className={cn(
-                        "min-h-touch min-w-touch rounded-md border px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/60",
+                        "min-h-touch min-w-12 rounded-md border px-3 text-sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/60",
                         selected
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input bg-background text-foreground hover:border-primary",
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-input bg-background text-foreground hover:border-foreground",
                       )}
                     >
                       {size}
@@ -105,7 +105,7 @@ function FilterControls({ facets, filters, defaultSort }: FilterPanelProps) {
                       />
                       <span
                         aria-hidden
-                        className="size-4 shrink-0 rounded-full border border-border"
+                        className="size-4 shrink-0 rounded-full ring-1 ring-border ring-inset"
                         style={{ backgroundColor: c.hex ?? undefined }}
                       />
                       {c.name}
@@ -185,7 +185,7 @@ function FilterControls({ facets, filters, defaultSort }: FilterPanelProps) {
 export function FilterSidebar(props: FilterPanelProps) {
   return (
     <aside aria-label="Filters" className="hidden w-60 shrink-0 lg:block">
-      <h2 className="mb-2 font-sans text-xs font-semibold tracking-widest uppercase">Filter</h2>
+      <h2 className="mb-2 border-b border-foreground pb-3 eyebrow text-foreground">Filter</h2>
       <FilterControls key={priceKey(props.filters)} {...props} />
     </aside>
   );

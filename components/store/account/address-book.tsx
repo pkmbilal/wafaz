@@ -41,7 +41,7 @@ export function AddressBook({
   return (
     <div className="flex flex-col gap-4">
       {addresses.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-12 text-center">
+        <div className="flex flex-col items-center gap-3 bg-secondary px-6 py-14 text-center">
           <MapPin aria-hidden className="size-10 text-accent" strokeWidth={1.5} />
           <p className="text-sm text-muted-foreground">
             No saved addresses yet. Add one to check out faster.
@@ -50,7 +50,7 @@ export function AddressBook({
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
           {addresses.map((a) => (
-            <li key={a.id} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-soft">
+            <li key={a.id} className="flex flex-col gap-3 border border-border bg-card p-5">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-medium">{a.name}</p>
                 {a.isDefault && <Badge variant="secondary">Default</Badge>}

@@ -308,8 +308,8 @@ export function CheckoutView({ cart, states, savedAddresses, defaultContact, def
         </StepSection>
       </div>
 
-      <aside className="flex flex-col gap-4 rounded-lg border border-border bg-card p-5 shadow-soft lg:sticky lg:top-24">
-        <h2 className="text-2xl font-semibold">Your order</h2>
+      <aside className="flex flex-col gap-4 bg-secondary p-6 lg:sticky lg:top-28">
+        <h2 className="eyebrow text-foreground">Your order</h2>
         <ul className="flex flex-col gap-2 text-sm">
           {cart.lines.map((line) => (
             <li key={line.id} className="flex justify-between gap-3">
@@ -369,10 +369,10 @@ function StepSection({
   return (
     <section
       aria-labelledby={headingId}
-      className={cn("rounded-lg border border-border p-5", active ? "bg-card shadow-soft" : "bg-background")}
+      className={cn("border p-5 sm:p-6", active ? "border-foreground/30 bg-card" : "border-border bg-background")}
     >
       <div className="flex items-center justify-between gap-2">
-        <h2 id={headingId} className={cn("text-xl font-semibold", !active && step < index && "text-muted-foreground")}>
+        <h2 id={headingId} className={cn("text-2xl", !active && step < index && "text-muted-foreground")}>
           {title}
         </h2>
         {!active && step > index && (
@@ -489,7 +489,7 @@ function AddressStep({
             key={a.id}
             className={cn(
               "flex cursor-pointer gap-3 rounded-md border p-4 text-sm has-focus-visible:ring-3 has-focus-visible:ring-ring/60",
-              selected === a.id ? "border-primary bg-primary/5" : "border-border",
+              selected === a.id ? "border-foreground bg-muted/50" : "border-border",
             )}
           >
             <input

@@ -14,6 +14,7 @@ export function HeroBanners({ banners }: { banners: Banner[] }) {
     <Carousel opts={{ loop: true }} aria-label="Featured" className="overflow-hidden bg-muted">
       <CarouselContent className="ml-0">
         {banners.map((b, i) => {
+          // TODO(owner): a taller mobile hero (4:5) looks more editorial but needs separate mobile banner art.
           const image = (
             <div className="relative aspect-4/3 sm:aspect-12/5">
               <Image
