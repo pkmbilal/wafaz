@@ -6,6 +6,7 @@ import { Home, LayoutGrid, Search, ShoppingBag, User } from "lucide-react";
 import { cn } from "cn";
 import { CartCount } from "@/components/store/cart-button";
 import { useCart } from "@/components/store/cart-provider";
+import { LinkPending } from "@/components/store/link-pending";
 
 const ITEMS = [
   { label: "Home", href: "/", icon: Home, match: (p: string) => p === "/" },
@@ -38,7 +39,13 @@ export function MobileBottomNav() {
                 )}
               >
                 <span className="relative">
-                  <Icon aria-hidden className="size-5" strokeWidth={active ? 1.75 : 1.25} />
+                  {href === "/account" ? (
+                    <LinkPending>
+                      <Icon aria-hidden className="size-5" strokeWidth={active ? 1.75 : 1.25} />
+                    </LinkPending>
+                  ) : (
+                    <Icon aria-hidden className="size-5" strokeWidth={active ? 1.75 : 1.25} />
+                  )}
                   {href === "/cart" && <CartCount count={count} className="-top-1.5 -right-2.5" />}
                 </span>
                 {label}

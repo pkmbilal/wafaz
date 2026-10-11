@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CartButton } from "@/components/store/cart-button";
+import { LinkPending } from "@/components/store/link-pending";
 import { MobileMenu } from "@/components/store/mobile-menu";
 import type { NavCategory } from "@/lib/catalog/queries";
 import { STORE_NAME } from "@/lib/site";
@@ -43,7 +44,9 @@ export function Header({ categories }: { categories: NavCategory[] }) {
           </Button>
           <Button asChild variant="ghost" size="icon" className="max-md:hidden">
             <Link href="/account" aria-label="Account">
-              <User />
+              <LinkPending>
+                <User />
+              </LinkPending>
             </Link>
           </Button>
           <CartButton />
