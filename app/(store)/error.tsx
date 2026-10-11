@@ -16,10 +16,10 @@ export default function StoreError({ error, retry }: { error: Error & { digest?:
     <div className="mx-auto w-full max-w-3xl px-4 py-16">
       <div
         role="alert"
-        className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-16 text-center"
+        className="flex flex-col items-center gap-4 bg-secondary px-6 py-20 text-center"
       >
         <CloudOff aria-hidden className="size-10 text-accent" strokeWidth={1.5} />
-        <h2 className="text-2xl font-semibold">Something went wrong</h2>
+        <h2 className="text-3xl">Something went wrong</h2>
         <p className="max-w-sm text-sm text-muted-foreground">
           Please try again. If you were paying, your payment is safe: check your email for confirmation.
         </p>

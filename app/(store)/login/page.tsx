@@ -22,12 +22,13 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-8 px-4 py-10 sm:py-16">
       <div className="flex flex-col gap-2 text-center">
-        <h1 className="text-4xl font-semibold sm:text-5xl">Sign in</h1>
+        <h1 className="text-4xl sm:text-5xl">Sign in</h1>
+        <span aria-hidden className="mx-auto h-px w-12 bg-accent" />
         <p className="text-sm text-muted-foreground">
           No password needed. We&apos;ll send you a one-time code.
         </p>
       </div>
-      <div className="rounded-lg border border-border bg-card p-5 shadow-soft sm:p-6">
+      <div className="border border-border bg-card p-6 sm:p-8">
         <OtpLogin next={next} />
       </div>
       <p className="text-center text-xs text-muted-foreground">

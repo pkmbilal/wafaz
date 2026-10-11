@@ -12,7 +12,7 @@ export default async function AccountAddressesPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold">Saved addresses</h2>
+      <h2 className="text-3xl">Saved addresses</h2>
       <AddressBook addresses={addresses} states={states} />
     </section>
   );

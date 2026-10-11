@@ -15,12 +15,12 @@ export default function GlobalError({ error, retry }: { error: Error & { digest?
       <body className="flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
         <title>Something went wrong</title>
         <main role="alert" className="flex max-w-sm flex-col items-center gap-3 text-center">
-          <h1 className="text-2xl font-semibold">Something went wrong</h1>
+          <h1 className="font-heading text-3xl">Something went wrong</h1>
           <p className="text-sm text-muted-foreground">Please try again in a moment.</p>
           <button
             type="button"
             onClick={() => retry()}
-            className="min-h-11 rounded-md border border-border px-5 text-sm font-medium"
+            className="min-h-12 border border-foreground px-6 text-xs font-medium tracking-[0.12em] uppercase"
           >
             Try again
           </button>

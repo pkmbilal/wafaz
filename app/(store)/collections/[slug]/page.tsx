@@ -36,9 +36,10 @@ export default async function CollectionPage({ params, searchParams }: PageProps
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-6">
       <Breadcrumbs items={target.breadcrumb} />
-      <header className="mb-8">
-        <h1 className="text-4xl font-semibold sm:text-5xl">{target.title}</h1>
-        {target.description && <p className="mt-2 max-w-2xl text-muted-foreground">{target.description}</p>}
+      <header className="mb-10 flex flex-col items-center gap-3 text-center lg:mb-14">
+        <h1 className="text-4xl sm:text-5xl">{target.title}</h1>
+        <span aria-hidden className="h-px w-12 bg-accent" />
+        {target.description && <p className="max-w-2xl leading-relaxed text-muted-foreground">{target.description}</p>}
       </header>
 
       <Suspense fallback={<ListingSkeleton />}>

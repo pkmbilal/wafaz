@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function CartPage() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 lg:px-6 lg:py-12">
-      <h1 className="mb-6 text-4xl font-semibold sm:text-5xl">Your cart</h1>
+      <h1 className="mb-10 text-center text-4xl sm:text-5xl">Your cart</h1>
       <Suspense fallback={<CartPageSkeleton />}>
         <CartContents />
       </Suspense>

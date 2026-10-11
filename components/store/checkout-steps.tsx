@@ -13,9 +13,9 @@ export function CheckoutSteps({ current }: { current: number }) {
           <li key={label} aria-current={state === "current" ? "step" : undefined} className="flex items-center gap-2">
             <span
               className={cn(
-                "flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
-                state === "done" && "border-primary bg-primary text-primary-foreground",
-                state === "current" && "border-primary text-primary",
+                "flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium",
+                state === "done" && "border-foreground bg-foreground text-background",
+                state === "current" && "border-foreground text-foreground",
                 state === "upcoming" && "border-border text-muted-foreground",
               )}
             >

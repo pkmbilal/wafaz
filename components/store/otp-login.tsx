@@ -225,7 +225,7 @@ export function OtpLogin({
         >
           <Tabs value={channel} onValueChange={switchChannel}>
             {channels.length > 1 && (
-              <TabsList className="w-full">
+              <TabsList variant="line" className="w-full">
                 <TabsTrigger value="whatsapp">
                   <MessageCircle aria-hidden /> WhatsApp
                 </TabsTrigger>

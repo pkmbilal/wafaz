@@ -35,15 +35,15 @@ export function ProductView({ product, availability }: ProductViewProps) {
   const media = colourMedia.length > 0 ? colourMedia : product.media;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+    <div className="grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
       {/* Remount on colour change so the gallery starts at that colour's first image. */}
       <ProductGallery key={colour} media={media} title={product.title} />
 
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl leading-tight font-semibold sm:text-4xl">{product.title}</h1>
+      <div className="flex flex-col gap-7 lg:pt-4">
+        <div className="flex flex-col gap-3 border-b border-border pb-6">
+          <h1 className="text-3xl leading-tight sm:text-4xl lg:text-[2.75rem]">{product.title}</h1>
           {shown && <PriceTag pricePaise={shown.pricePaise} mrpPaise={shown.mrpPaise} size="lg" />}
-          <p className="text-xs text-muted-foreground">Inclusive of all taxes</p>
+          <p className="eyebrow text-muted-foreground">Inclusive of all taxes</p>
         </div>
 
         {product.colours.length > 0 && (
@@ -76,7 +76,7 @@ export function ProductView({ product, availability }: ProductViewProps) {
             size="lg"
             disabled={!selected || adding}
             aria-disabled={!selected || adding}
-            className="w-full sm:max-w-sm"
+            className="w-full"
             onClick={() => {
               if (!selected) return;
               startAdding(async () => {

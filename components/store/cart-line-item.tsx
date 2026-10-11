@@ -38,7 +38,7 @@ export function CartLineItem({ line, onQtyChange, onRemove, onNavigate, size = "
         tabIndex={-1}
         aria-hidden
         className={cn(
-          "relative aspect-4/5 shrink-0 overflow-hidden rounded-md bg-muted",
+          "relative aspect-4/5 shrink-0 overflow-hidden bg-muted",
           size === "lg" ? "w-28 sm:w-32" : "w-20",
         )}
       >
@@ -55,11 +55,11 @@ export function CartLineItem({ line, onQtyChange, onRemove, onNavigate, size = "
 
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-sans text-sm leading-snug font-medium tracking-normal">
+          <h3 className="font-sans text-sm leading-snug font-normal tracking-wide">
             <Link
               href={`/products/${line.productSlug}`}
               onClick={onNavigate}
-              className="rounded-sm outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/60"
+              className="rounded-sm outline-none hover:underline underline-offset-4 focus-visible:ring-3 focus-visible:ring-ring/60"
             >
               {line.title}
             </Link>
@@ -92,7 +92,7 @@ export function CartLineItem({ line, onQtyChange, onRemove, onNavigate, size = "
               onChange={(qty) => startTransition(() => onQtyChange(qty))}
             />
             {line.qty > 1 && (
-              <p className="text-sm font-semibold tabular-nums">{formatInr(lineTotalPaise(line))}</p>
+              <p className="text-sm font-medium tabular-nums">{formatInr(lineTotalPaise(line))}</p>
             )}
           </div>
         )}

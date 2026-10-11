@@ -25,10 +25,10 @@ export function AccountNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-touch items-center gap-2 border-b-2 px-3 text-sm font-medium tracking-wide whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/60 md:rounded-md md:border-b-0",
+                  "flex min-h-touch items-center gap-2 border-b-2 px-3 text-xs font-medium tracking-(--tracking-label) uppercase whitespace-nowrap transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/60 md:rounded-md md:border-b-0",
                   active
-                    ? "border-primary text-primary md:bg-secondary"
-                    : "border-transparent text-foreground/70 hover:text-primary",
+                    ? "border-foreground text-foreground md:bg-secondary"
+                    : "border-transparent text-foreground/60 hover:text-foreground",
                 )}
               >
                 <Icon aria-hidden className="size-4" />

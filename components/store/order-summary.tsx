@@ -28,7 +28,7 @@ export function OrderSummary({ totals, title = "Order summary" }: { totals: Orde
           />
         )}
         <Row label="Shipping" value={totals.shippingPaise === 0 ? "Free" : formatInr(totals.shippingPaise)} />
-        <div className="mt-1 flex justify-between border-t border-border pt-2 text-base font-semibold">
+        <div className="mt-1 flex justify-between border-t border-border pt-3 text-base font-medium">
           <dt>Total</dt>
           <dd className="tabular-nums">{formatInr(totals.totalPaise)}</dd>
         </div>

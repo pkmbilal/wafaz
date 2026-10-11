@@ -22,7 +22,7 @@ export function CartSummary({ cart, onNavigate }: { cart: CartSnapshot; onNaviga
             </div>
           </>
         )}
-        <div className="flex justify-between text-base font-semibold">
+        <div className="mt-2 flex justify-between border-t border-border pt-3 text-base font-medium">
           <dt>Subtotal</dt>
           <dd className="tabular-nums">{formatInr(totals.subtotalPaise)}</dd>
         </div>
