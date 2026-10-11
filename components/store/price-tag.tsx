@@ -13,7 +13,7 @@ export function PriceTag({ pricePaise, mrpPaise, size = "sm", className }: Price
 
   return (
     <p className={cn("flex flex-wrap items-baseline gap-x-2 gap-y-0.5", className)}>
-      <span className={cn("font-semibold text-foreground", size === "lg" ? "text-2xl" : "text-sm")}>
+      <span className={cn("font-medium text-foreground", size === "lg" ? "text-2xl" : "text-sm")}>
         <span className="sr-only">Price </span>
         {formatInr(pricePaise)}
       </span>
@@ -23,7 +23,7 @@ export function PriceTag({ pricePaise, mrpPaise, size = "sm", className }: Price
             <span className="sr-only">MRP </span>
             {formatInr(mrpPaise)}
           </span>
-          <span className={cn("font-semibold text-sale", size === "lg" ? "text-base" : "text-xs")}>
+          <span className={cn("font-medium text-sale", size === "lg" ? "text-base" : "text-xs")}>
             {off}% off
           </span>
         </>

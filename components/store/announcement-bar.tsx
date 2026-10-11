@@ -4,7 +4,7 @@ const ANNOUNCEMENT = "Free shipping across India on orders above ₹1,499";
 
 export function AnnouncementBar() {
   return (
-    <div className="bg-primary px-4 py-2 text-center text-xs font-medium tracking-wide text-primary-foreground">
+    <div className="bg-ink px-4 py-2.5 text-center eyebrow text-ink-foreground/90">
       {ANNOUNCEMENT}
     </div>
   );

@@ -1,19 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Cormorant_Garamond, Jost } from "next/font/google";
 import { publicEnv } from "@/lib/env";
 import { STORE_NAME, STORE_TAGLINE } from "@/lib/site";
 import "./globals.css";
 
-// TODO(owner): placeholder fonts. Swap the display serif / body sans here; the CSS
+// TODO(owner): confirm fonts. Swap the display serif / body sans here; the CSS
 // variables (--font-display, --font-body) keep the rest of the app unchanged.
 const display = Cormorant_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const body = Inter({
+const body = Jost({
   variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fbf8f2", // matches --background; meta tags need a literal colour
+  themeColor: "#ffffff", // matches --background; meta tags need a literal colour
   colorScheme: "light",
 };
 
