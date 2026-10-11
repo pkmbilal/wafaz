@@ -7,6 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries = await getSitemapEntries();
   return [
     { url: base, changeFrequency: "daily", priority: 1 },
+    { url: `${base}/shop`, changeFrequency: "daily", priority: 0.7 },
     ...entries.map((e) => ({
       url: `${base}${e.path}`,
       lastModified: e.updatedAt,

@@ -9,7 +9,7 @@ import { useCart } from "@/components/store/cart-provider";
 
 const ITEMS = [
   { label: "Home", href: "/", icon: Home, match: (p: string) => p === "/" },
-  { label: "Shop", href: "/collections/new-arrivals", icon: LayoutGrid, match: (p: string) => p.startsWith("/collections") || p.startsWith("/products") },
+  { label: "Shop", href: "/shop", icon: LayoutGrid, match: (p: string) => p.startsWith("/shop") || p.startsWith("/collections") || p.startsWith("/products") },
   { label: "Search", href: "/search", icon: Search, match: (p: string) => p.startsWith("/search") },
   { label: "Cart", href: "/cart", icon: ShoppingBag, match: (p: string) => p.startsWith("/cart") },
   { label: "Account", href: "/account", icon: User, match: (p: string) => p.startsWith("/account") },

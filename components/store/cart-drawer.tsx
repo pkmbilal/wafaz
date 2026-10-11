@@ -33,10 +33,10 @@ export function CartDrawer() {
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
             <ShoppingBag aria-hidden className="size-10 text-accent" strokeWidth={1.5} />
             <p className="font-heading text-2xl">Your cart is empty</p>
-            <p className="max-w-xs text-sm text-muted-foreground">Find something you love in our latest collection.</p>
+            <p className="max-w-xs text-sm text-muted-foreground">Find something you love in our collection.</p>
             <Button asChild variant="outline" className="mt-2">
-              <Link href="/collections/new-arrivals" onClick={close}>
-                Shop new arrivals
+              <Link href="/shop" onClick={close}>
+                Shop all
               </Link>
             </Button>
           </div>

@@ -25,8 +25,8 @@ export function CartPageView({ initial }: { initial: CartSnapshot }) {
       <EmptyState
         icon={ShoppingBag}
         title="Your cart is empty"
-        description="Find something you love in our latest collection."
-        action={{ label: "Shop new arrivals", href: "/collections/new-arrivals" }}
+        description="Find something you love in our collection."
+        action={{ label: "Shop all", href: "/shop" }}
       />
     );
   }

@@ -30,6 +30,9 @@ export function MobileMenu({ categories }: { categories: NavCategory[] }) {
           <SheetTitle className="eyebrow text-muted-foreground">Shop</SheetTitle>
         </SheetHeader>
         <nav aria-label="Mobile" className="flex flex-col px-2 pb-6">
+          <MenuLink href="/shop" onNavigate={close}>
+            Shop all
+          </MenuLink>
           <MenuLink href="/collections/new-arrivals" onNavigate={close}>
             New Arrivals
           </MenuLink>

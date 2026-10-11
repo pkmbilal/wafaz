@@ -22,6 +22,9 @@ export function Header({ categories }: { categories: NavCategory[] }) {
         <nav aria-label="Main" className="ml-12 hidden lg:block">
           <ul className="flex items-center gap-2">
             <li>
+              <NavLink href="/shop">Shop all</NavLink>
+            </li>
+            <li>
               <NavLink href="/collections/new-arrivals">New Arrivals</NavLink>
             </li>
             {categories.map((c) => (

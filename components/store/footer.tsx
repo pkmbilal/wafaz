@@ -48,6 +48,7 @@ export function Footer({ settings, categories }: { settings: Settings; categorie
         </div>
 
         <FooterColumn title="Shop">
+          <FooterLink href="/shop">Shop all</FooterLink>
           <FooterLink href="/collections/new-arrivals">New Arrivals</FooterLink>
           <FooterLink href="/collections/best-sellers">Best Sellers</FooterLink>
           {categories.map((c) => (
