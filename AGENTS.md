@@ -36,6 +36,7 @@ An online store for Indian ethnic wear (kurtis, kurti sets, co-ords, kaftans, et
 - **Customers:** India only, prices in INR, **prepaid only via Razorpay**. There is **no Cash on Delivery**; do not build COD, COD flags, or COD fields.
 - **Shipping:** the owner books parcels with DTDC or India Post manually and enters the tracking number in admin
 - **Login:** WhatsApp OTP or email OTP only. No SMS, no passwords, no social login.
+  - **Exception:** admin (`owner` / `staff`) accounts may also sign in with email + password at `/admin/login`. Customers are OTP-only.
 
 ## 2. Tech Stack
 
@@ -169,6 +170,7 @@ Full rules are in `docs/DATA_MODEL.md` §6. In summary:
 - **Upgrading a guest:**
   - New phone or email → `updateUser({ phone | email })` plus OTP. The `uid` stays the same, so nothing needs merging.
   - Phone or email already belongs to an account → capture the anonymous `uid` server-side, sign in to the existing account, then call `merge_guest_into_user(anon_uid)` (service role). This moves the cart and orders.
+- **Admin password login:** `/admin/login` uses `signInWithPassword` (Turnstile captcha, 5 attempts per email/IP per 15 min), then signs out anyone who is not `owner`/`staff`. Signed-out visitors to `/admin` are sent there.
 - **Dev mode:** with `WHATSAPP_DRY_RUN=true` (dev only), the hook logs the OTP to the server console instead of sending it.
 
 ### 5.4 Payments (Razorpay)
