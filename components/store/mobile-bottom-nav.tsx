@@ -32,6 +32,8 @@ export function MobileBottomNav() {
             <li key={href}>
               <Link
                 href={href}
+                // No prefetch: /account redirects server-side, and a prefetched copy leaves the click stuck.
+                prefetch={href === "/account" ? false : undefined}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex h-14 flex-col items-center justify-center gap-0.5 text-[0.625rem] font-medium tracking-[0.12em] uppercase outline-none focus-visible:bg-muted",
