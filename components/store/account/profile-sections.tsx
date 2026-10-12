@@ -16,16 +16,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useOptionalCart } from "@/components/store/cart-provider";
-import { OtpLogin } from "@/components/store/otp-login";
 import {
   cancelAccountDeletion,
   requestAccountDeletion,
   setMarketingConsent,
+  updatePhone,
   updateProfile,
   type ActionResult,
 } from "@/app/(store)/account/actions";
 import { signOut } from "@/app/(store)/login/actions";
-import type { OtpChannel } from "@/lib/validators/auth";
 
 function useAction() {
   const [pending, startTransition] = useTransition();
@@ -71,47 +70,45 @@ export function NameForm({ fullName }: { fullName: string | null }) {
   );
 }
 
-export function ContactRow({
-  channel,
-  value,
-}: {
-  channel: OtpChannel;
-  value: string | null;
-}) {
-  const [open, setOpen] = useState(false);
-  const label = channel === "whatsapp" ? "WhatsApp number" : "Email";
+export function PhoneForm({ phone }: { phone: string | null }) {
+  const initial = phone?.replace(/^\+91/, "") ?? "";
+  const [value, setValue] = useState(initial);
+  const { pending, run } = useAction();
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3">
-      <div className="min-w-0">
-        <p className="text-sm font-medium">{label}</p>
-        <p className="truncate text-sm text-muted-foreground">{value ?? "Not added"}</p>
-      </div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            {value ? "Change" : "Add"}
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{value ? `Change ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}</DialogTitle>
-            <DialogDescription>
-              We&apos;ll send a code to confirm it. You can then sign in with it too.
-            </DialogDescription>
-          </DialogHeader>
-          <OtpLogin
-            mode="change"
-            defaultChannel={channel}
-            channels={[channel]}
-            onDone={() => {
-              setOpen(false);
-              toast.success(`${label} saved`);
-            }}
+    <form
+      className="flex flex-col gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        run(() => updatePhone({ phone: value }), value.trim() ? "Number saved" : "Number removed");
+      }}
+    >
+      <Label htmlFor="account-phone">Mobile number</Label>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex flex-1 items-stretch gap-2">
+          <span className="inline-flex min-h-touch items-center rounded-md border border-input bg-muted px-3 text-base text-muted-foreground">
+            +91
+          </span>
+          <Input
+            id="account-phone"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            placeholder="98765 43210"
+            maxLength={14}
+            value={value}
+            aria-describedby="account-phone-help"
+            onChange={(e) => setValue(e.target.value)}
           />
-        </DialogContent>
-      </Dialog>
-    </div>
+        </div>
+        <Button type="submit" variant="outline" disabled={pending || value.trim() === initial}>
+          {pending ? "Saving…" : "Save"}
+        </Button>
+      </div>
+      <p id="account-phone-help" className="text-xs text-muted-foreground">
+        Used as the contact number at checkout.
+      </p>
+    </form>
   );
 }
 

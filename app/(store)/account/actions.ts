@@ -7,6 +7,7 @@ import {
   addressSchema,
   idSchema,
   marketingConsentSchema,
+  profilePhoneSchema,
   profileSchema,
 } from "@/lib/validators/auth";
 
@@ -37,6 +38,21 @@ export async function updateProfile(input: unknown): Promise<ActionResult> {
   const { error } = await session.supabase
     .from("profiles")
     .update({ full_name: parsed.data.fullName })
+    .eq("id", session.userId);
+  if (error) return { ok: false, error: GENERIC_ERROR };
+  refresh();
+  return { ok: true };
+}
+
+export async function updatePhone(input: unknown): Promise<ActionResult> {
+  const parsed = profilePhoneSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+  const session = await signedInClient();
+  if (!session) return { ok: false, error: "Please sign in again." };
+
+  const { error } = await session.supabase
+    .from("profiles")
+    .update({ phone: parsed.data.phone })
     .eq("id", session.userId);
   if (error) return { ok: false, error: GENERIC_ERROR };
   refresh();

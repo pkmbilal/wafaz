@@ -7,14 +7,14 @@ import { formatInr } from "@/lib/format";
 import { getDashboard } from "@/lib/orders/admin-queries";
 
 // Admin dashboard: today's numbers, what needs shipping, low stock and the "Needs attention" panel
-// (AGENTS.md §5.12). Webhook and OTP failures are visible to the owner only (RLS).
+// (AGENTS.md §5.12). Webhook failures are visible to the owner only (RLS).
 
 const dateTime = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
 
 export default async function AdminDashboardPage() {
   const [d, deletions, { role }] = await Promise.all([getDashboard(), listDeletionRequests(), requireAdmin()]);
   const attentionCount =
-    d.attentionOrders.length + d.stuckRefunds.length + d.failedWebhooks.length + d.failedEmails.length + d.failedOtpSends;
+    d.attentionOrders.length + d.stuckRefunds.length + d.failedWebhooks.length + d.failedEmails.length;
 
   return (
     <main className="flex flex-col gap-8">
@@ -78,11 +78,6 @@ export default async function AdminDashboardPage() {
                     detail={e.error ?? "unknown error"}
                   />
                 ))}
-              </Panel>
-            )}
-            {d.failedOtpSends > 0 && (
-              <Panel title="WhatsApp OTP sends (24 h)">
-                <Row title={`${d.failedOtpSends} failed`} detail="Customers were offered email OTP instead." />
               </Panel>
             )}
           </div>

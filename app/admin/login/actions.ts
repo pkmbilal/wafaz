@@ -8,7 +8,7 @@ import { clientIp } from "@/lib/request";
 import { createClient } from "@/lib/supabase/server";
 import { emailSchema } from "@/lib/validators/auth";
 
-// Admin-only password sign-in (AGENTS.md §5.3 exception). As with OTP login, signInWithPassword
+// Admin password sign-in (AGENTS.md §5.3). As with customer login, signInWithPassword
 // runs in the browser so Supabase's per-IP limits see the real IP; these actions add the app-side
 // rate limit and the role check. The password itself never reaches our server.
 

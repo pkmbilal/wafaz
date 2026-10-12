@@ -63,6 +63,8 @@ export const config = {
     "/account/:path*",
     "/orders/:path*",
     "/login/:path*",
+    "/signup/:path*",
+    "/forgot-password/:path*",
     "/admin/:path*",
   ],
 };

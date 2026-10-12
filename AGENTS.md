@@ -35,8 +35,8 @@ An online store for Indian ethnic wear (kurtis, kurti sets, co-ords, kaftans, et
 - **Seller:** GST-registered business in **Kerala** (state code `32`)
 - **Customers:** India only, prices in INR, **prepaid only via Razorpay**. There is **no Cash on Delivery**; do not build COD, COD flags, or COD fields.
 - **Shipping:** the owner books parcels with DTDC or India Post manually and enters the tracking number in admin
-- **Login:** WhatsApp OTP or email OTP only. No SMS, no passwords, no social login.
-  - **Exception:** admin (`owner` / `staff`) accounts may also sign in with email + password at `/admin/login`. Customers are OTP-only.
+- **Login:** email + password only. Customers sign up with an email confirmed by a 6-digit code. No SMS or WhatsApp OTP, no social login.
+  - Admin (`owner` / `staff`) accounts sign in at `/admin/login`; customers at `/login`.
 
 ## 2. Tech Stack
 
@@ -45,10 +45,10 @@ An online store for Indian ethnic wear (kurtis, kurti sets, co-ords, kaftans, et
 | Framework | Next.js, App Router, TypeScript. Pin the exact version in `package.json` |
 | Styling | Tailwind CSS v4 + shadcn/ui (restyled to the brand, see §6) |
 | Database | Supabase Postgres + RLS + pg_cron + pg_trgm |
-| Auth | Supabase Auth: anonymous sign-ins (guests), phone OTP sent over **WhatsApp** via Send SMS Hook, email OTP |
+| Auth | Supabase Auth: anonymous sign-ins (guests), email + password with 6-digit email codes for confirmation and reset |
 | Media | Cloudflare R2: one public bucket for media, one private bucket for anything with personal data |
 | Payments | Razorpay Standard Checkout |
-| WhatsApp | Meta WhatsApp Cloud API (OTP authentication template in Phase 1) |
+| WhatsApp | Support chat link only in Phase 1; Meta WhatsApp Cloud API for later-phase notifications |
 | Email | Resend (also used as Supabase Auth custom SMTP) + React Email |
 | PDFs | `@react-pdf/renderer` (invoices, credit notes, packing slips, labels) |
 | Validation / forms | Zod, react-hook-form |
@@ -100,7 +100,6 @@ app/
   api/
     razorpay/order/           # create Razorpay order
     razorpay/webhook/         # Razorpay webhook
-    auth/send-otp/            # Supabase Send SMS Hook → WhatsApp OTP
     r2/presign/               # presigned uploads (admin only)
     invoices/[id]/            # PDF on demand (auth checked)
 components/
@@ -110,7 +109,6 @@ components/
 lib/
   supabase/                   # server, browser, admin (service role) clients
   razorpay.ts
-  whatsapp.ts                 # Meta Cloud API client
   r2.ts
   pricing.ts                  # cart totals + discount allocation (single source of truth)
   gst/                        # tax calc, state codes, invoice numbering helpers
@@ -158,20 +156,14 @@ Full rules are in `docs/DATA_MODEL.md` §6. In summary:
   - A visitor without a session gets a Supabase **anonymous sign-in** (Turnstile captcha enabled) **lazily, on their first cart action** (add to cart, open cart, checkout), so carts and guest orders are protected by normal RLS using `auth.uid()`. Catalog pages never create sessions, so they stay cacheable and bots don't create users.
   - Stale anonymous users (older than 30 days, no orders) are deleted by a daily cron.
   - Guests can check out. Email and phone are collected at checkout.
-- **WhatsApp OTP:**
-  - The app calls `signInWithOtp({ phone })`. Supabase calls the **Send SMS Hook** at `app/api/auth/send-otp`.
-  - The hook verifies the Standard Webhooks signature, then sends the OTP through the approved Meta **authentication template** (copy-code button).
-  - No SMS provider is configured, so no DLT registration is needed.
-  - If the WhatsApp send fails, the UI offers email OTP instead.
-- **Email OTP:**
-  - `signInWithOtp({ email })` with the email template showing the 6-digit `{{ .Token }}` (codes, not magic links).
-  - Verify with `verifyOtp`. SMTP is Resend.
+- **Sign-up** (`/signup`): name, email, password (8–72 characters). `signUp({ email, password, options: { captchaToken, data: { full_name } } })`. Email confirmations stay on: the confirmation template shows the 6-digit `{{ .Token }}` (codes, not links), verified with `verifyOtp({ type: "email" })`. An already-registered email gets "log in instead".
+- **Sign-in** (`/login`): `signInWithPassword` with Turnstile. Unknown email and wrong password show the same message. An unconfirmed account is offered a fresh confirmation code.
+- **Password reset** (`/forgot-password`): `resetPasswordForEmail` → recovery template with the 6-digit code → `verifyOtp({ type: "recovery" })` → `updateUser({ password })`. The UI never says whether the email has an account.
+- **Account:** email change via `updateUser({ email })` plus an `email_change` code; password change via `updateUser({ password })`. The phone number is a plain profile field (checkout contact default).
+- All Supabase Auth calls run in the browser, so Supabase's per-IP limits see the customer's IP and passwords never pass through our server. Server Actions only apply the app rate limits and the guest merge. SMTP is Resend.
 - **Phone format:** numbers are stored as E.164 (`+91XXXXXXXXXX`) and validated as Indian mobile numbers.
-- **Upgrading a guest:**
-  - New phone or email → `updateUser({ phone | email })` plus OTP. The `uid` stays the same, so nothing needs merging.
-  - Phone or email already belongs to an account → capture the anonymous `uid` server-side, sign in to the existing account, then call `merge_guest_into_user(anon_uid)` (service role). This moves the cart and orders.
-- **Admin password login:** `/admin/login` uses `signInWithPassword` (Turnstile captcha, 5 attempts per email/IP per 15 min), then signs out anyone who is not `owner`/`staff`. Signed-out visitors to `/admin` are sent there.
-- **Dev mode:** with `WHATSAPP_DRY_RUN=true` (dev only), the hook logs the OTP to the server console instead of sending it.
+- **Upgrading a guest:** sign-up and sign-in both create a session for a different `uid`. The browser captures the anonymous access token before the session changes; the server verifies it and calls `merge_guest_into_user(anon_uid)` (service role), which moves the cart and orders.
+- **Admin login:** `/admin/login` uses `signInWithPassword` (Turnstile captcha, 5 attempts per email/IP per 15 min), then signs out anyone who is not `owner`/`staff`. Signed-out visitors to `/admin` are sent there.
 
 ### 5.4 Payments (Razorpay)
 1. Create the Razorpay order server-side only, with the amount taken from the DB order total. Auto-capture must be enabled in the Razorpay dashboard (the flow relies on `payment.captured`).
@@ -207,17 +199,18 @@ An order has **three separate statuses**: `order_status`, `payment_status` and `
 ### 5.8 Security
 - **RLS:** enabled on **every** table. Customers access only their own rows.
 - **Admin:** checked via `profiles.role in ('owner','staff')` in RLS and in route guards.
-- **Service role:** the key is used only in `lib/supabase/admin.ts`, and only from webhooks, the auth hook, cron-triggered routes, admin Server Actions, OTP request rate limiting in the login Server Action (`check_rate_limit()`, before a session exists), the guest-merge step of login (`merge_guest_into_user`), and guest order / invoice reads **after** the `?t=` HMAC token has been verified (those reads are scoped to that one order ID). Never import it into client code.
+- **Service role:** the key is used only in `lib/supabase/admin.ts`, and only from webhooks, cron-triggered routes, admin Server Actions, sign-in / sign-up / reset rate limiting in the login Server Action (`check_rate_limit()`, before a session exists), the guest-merge step of login (`merge_guest_into_user`), and guest order / invoice reads **after** the `?t=` HMAC token has been verified (those reads are scoped to that one order ID). Never import it into client code.
 - **Rate limits:** apply `check_rate_limit()`:
 
   | Action | Limit |
   |---|---|
-  | OTP requests | 5 per phone/email per hour, 20 per IP per hour |
+  | Password sign-in | 10 per email per 15 min, 30 per IP per 15 min |
+  | Auth emails (sign-up, confirmation resend, password reset, email change) | 5 per email per hour, 20 per IP per hour |
   | Coupon apply | 10 per session per 10 min |
   | Order create | 5 per user per 10 min |
 
   Supabase Auth's built-in limits stay on as well.
-- **Turnstile:** required on anonymous sign-in, OTP request and order creation.
+- **Turnstile:** required on anonymous sign-in, sign-up, password sign-in, password reset and order creation.
 - **Coupon limits** (`per_user_limit`, `first_order_only`) match on user ID, normalised email **or** phone, so a new guest session can't reuse a coupon.
 - **Guest order links:** `/orders/[id]?t=<token>` where the token is an HMAC of the order ID and email using `ORDER_LINK_SECRET`. Links never expire but grant read-only access.
 - **Uploads:** R2 presigned URLs are admin-only and expire after 5 minutes. Keys are generated server-side. Content types are limited to jpeg, png, webp and avif, with a maximum of 10 MB.
@@ -245,7 +238,7 @@ An order has **three separate statuses**: `order_status`, `payment_status` and `
 ### 5.12 Observability
 - Sentry on server and client. Strip PII (phone, email, address) in `beforeSend`.
 - Every webhook and auth-hook failure is recorded in the DB and reported to Sentry.
-- The admin dashboard shows a **Needs attention** panel: amount mismatches, late payments refunded automatically, failed webhooks, and failed WhatsApp OTP sends in the last 24 hours.
+- The admin dashboard shows a **Needs attention** panel: amount mismatches, late payments refunded automatically, failed webhooks and failed emails in the last 24 hours.
 
 ## 6. UI — shadcn/ui, Restyled to the Brand
 
@@ -268,7 +261,7 @@ shadcn is the **starting point**. Components are copied into `components/ui/` an
 
 **Phase 1 store components:**
 
-`Header` `MobileMenu` `MobileBottomNav` `AnnouncementBar` (static text) `CartDrawer` `ProductCard` `ProductGallery` (switches with selected colour) `PriceTag` `SizeSelector` `ColourSwatch` `QuantityStepper` `FilterPanel` `SortMenu` `CartLineItem` `CheckoutSteps` `AddressForm` `OtpLogin` (WhatsApp / email tabs) `OrderStatusTimeline` `Footer` (with seller details) `WhatsAppButton` `EmptyState`
+`Header` `MobileMenu` `MobileBottomNav` `AnnouncementBar` (static text) `CartDrawer` `ProductCard` `ProductGallery` (switches with selected colour) `PriceTag` `SizeSelector` `ColourSwatch` `QuantityStepper` `FilterPanel` `SortMenu` `CartLineItem` `CheckoutSteps` `AddressForm` `LoginForm` `SignupForm` `ForgotPasswordForm` `OrderStatusTimeline` `Footer` (with seller details) `WhatsAppButton` `EmptyState`
 
 ## 7. Environment Variables
 
@@ -279,7 +272,6 @@ ORDER_LINK_SECRET=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-SUPABASE_SEND_SMS_HOOK_SECRET=        # Standard Webhooks secret for the auth hook
 
 R2_ACCOUNT_ID=
 R2_ACCESS_KEY_ID=
@@ -291,12 +283,6 @@ NEXT_PUBLIC_MEDIA_URL=
 NEXT_PUBLIC_RAZORPAY_KEY_ID=
 RAZORPAY_KEY_SECRET=
 RAZORPAY_WEBHOOK_SECRET=
-
-WHATSAPP_PHONE_NUMBER_ID=
-WHATSAPP_ACCESS_TOKEN=
-WHATSAPP_OTP_TEMPLATE_NAME=
-WHATSAPP_OTP_TEMPLATE_LANG=en
-WHATSAPP_DRY_RUN=false                # true only in local dev
 
 RESEND_API_KEY=
 EMAIL_FROM=
@@ -323,7 +309,7 @@ Business details (legal name, GSTIN, address, grievance officer, invoice prefixe
   - `reserve_stock`, `commit_order_payment`, `expire_pending_orders`, `late_payment_commit`, `next_document_number` and `transition_order`, including concurrency tests (two buyers, last unit)
   - RLS: customer A cannot read customer B's rows; an anonymous user sees only their own
 - **Webhook:** fixture payloads in `tests/fixtures/razorpay/` covering a bad signature, a duplicate event, an amount mismatch, a late payment, and a payment failure followed by success.
-- **E2E (Playwright):** browse → add to cart → guest checkout → Razorpay test payment → order confirmed → invoice downloadable. Also: login via email OTP (local Inbucket) and WhatsApp OTP (dry-run log).
+- **E2E (Playwright):** browse → add to cart → guest checkout → Razorpay test payment → order confirmed → invoice downloadable. Also: sign-up with the emailed code (local Mailpit), password sign-in, password reset, and a guest cart kept after sign-up.
 
 ## 9. Definition of Done (every task)
 

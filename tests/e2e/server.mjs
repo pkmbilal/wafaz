@@ -1,5 +1,5 @@
-// Starts `next dev` for Playwright and copies its output to .e2e/server.log, where the WhatsApp
-// OTP test reads the dry-run code. Env comes from playwright.config.ts (webServer.env).
+// Starts `next dev` for Playwright and copies its output to .e2e/server.log for debugging.
+// Env comes from playwright.config.ts (webServer.env).
 import { spawn } from "node:child_process";
 import { createWriteStream, mkdirSync } from "node:fs";
 import path from "node:path";

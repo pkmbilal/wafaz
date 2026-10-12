@@ -2,8 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import { BASE_URL, PORT, serverEnv } from "./tests/e2e/env";
 
 // E2E against the local Supabase stack + Razorpay test mode (AGENTS.md §8).
-// Prerequisites: `supabase start`, and nothing else listening on the Send SMS Hook port
-// (SUPABASE_SEND_SMS_HOOK_URI in supabase/.env, usually 3000).
+// Prerequisites: `supabase start`, and nothing else listening on port 3000 (or set E2E_PORT).
 export default defineConfig({
   testDir: "./tests/e2e",
   outputDir: "./.e2e/results",
