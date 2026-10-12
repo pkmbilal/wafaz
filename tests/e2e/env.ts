@@ -6,7 +6,6 @@ import path from "node:path";
 // Process env beats .env.local in Next, so these overrides win over whatever .env.local points at.
 
 export const ROOT = path.resolve(__dirname, "../..");
-export const SERVER_LOG = path.join(ROOT, ".e2e", "server.log");
 export const WEBHOOK_SECRET = "e2e_razorpay_webhook_secret";
 
 function readEnvFile(file: string): Record<string, string> {
@@ -20,27 +19,7 @@ function readEnvFile(file: string): Record<string, string> {
   );
 }
 
-const supabaseEnv = readEnvFile(path.join(ROOT, "supabase", ".env"));
-
-// The app must listen where the local Send SMS Hook calls it, or WhatsApp OTP requests never reach
-// it. The running auth container is the truth (it keeps the URI it was started with); fall back to
-// supabase/.env. E2E_PORT overrides both.
-function hookUri(): string {
-  const projectId = readFileSync(path.join(ROOT, "supabase", "config.toml"), "utf8").match(/^project_id\s*=\s*"([^"]+)"/m)?.[1];
-  try {
-    const env = execSync(`docker inspect supabase_auth_${projectId} --format "{{range .Config.Env}}{{println .}}{{end}}"`, {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    });
-    const uri = env.match(/^GOTRUE_HOOK_SEND_SMS_URI=(.+)$/m)?.[1];
-    if (uri) return uri.trim();
-  } catch {
-    // Docker CLI unavailable; use the file.
-  }
-  return supabaseEnv.SUPABASE_SEND_SMS_HOOK_URI || "http://localhost:3000";
-}
-
-export const PORT = Number(process.env.E2E_PORT || new URL(hookUri()).port || 80);
+export const PORT = Number(process.env.E2E_PORT || 3000);
 export const BASE_URL = `http://localhost:${PORT}`;
 
 let cachedStack: { url: string; anonKey: string; serviceRoleKey: string; mailUrl: string } | undefined;
@@ -89,7 +68,6 @@ export function serverEnv(): Record<string, string> {
     NEXT_PUBLIC_SUPABASE_URL: stack.url,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: stack.anonKey,
     SUPABASE_SERVICE_ROLE_KEY: stack.serviceRoleKey,
-    SUPABASE_SEND_SMS_HOOK_SECRET: supabaseEnv.SUPABASE_SEND_SMS_HOOK_SECRET ?? "",
     ORDER_LINK_SECRET: "e2e-order-link-secret-0123456789abcdef",
     // Cloudflare's always-pass Turnstile test keys (the local stack uses the matching secret).
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
@@ -97,7 +75,6 @@ export function serverEnv(): Record<string, string> {
     NEXT_PUBLIC_RAZORPAY_KEY_ID: rzp?.keyId ?? "",
     RAZORPAY_KEY_SECRET: rzp?.keySecret ?? "",
     RAZORPAY_WEBHOOK_SECRET: WEBHOOK_SECRET,
-    WHATSAPP_DRY_RUN: "true",
     // Empty Resend key: order emails are logged, not sent.
     RESEND_API_KEY: "",
     SENTRY_DSN: "",

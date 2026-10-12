@@ -4,7 +4,7 @@ import path from "node:path";
 import { expect, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import { BASE_URL, ROOT, SERVER_LOG, WEBHOOK_SECRET, localStack } from "./env";
+import { BASE_URL, ROOT, WEBHOOK_SECRET, localStack } from "./env";
 
 export function adminClient() {
   const { url, serviceRoleKey } = localStack();
@@ -45,27 +45,21 @@ async function poll<T>(fn: () => Promise<T | null> | T | null, what: string, tim
   throw new Error(`Timed out waiting for ${what}`);
 }
 
-// Email OTP from the local Mailpit inbox.
-export function emailOtp(email: string): Promise<string> {
+// The latest 6-digit code emailed to this address, from the local Mailpit inbox.
+// `after` skips messages that arrived before it (e.g. an earlier sign-up code).
+export function emailOtp(email: string, after?: Date): Promise<string> {
   const { mailUrl } = localStack();
   return poll(async () => {
     const search = await fetch(`${mailUrl}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
     if (!search.ok) return null;
-    const { messages } = (await search.json()) as { messages: { ID: string }[] };
-    if (!messages?.length) return null;
-    const message = await fetch(`${mailUrl}/api/v1/message/${messages[0].ID}`);
+    const { messages } = (await search.json()) as { messages: { ID: string; Created: string }[] };
+    // Newest first.
+    const latest = messages?.[0];
+    if (!latest || (after && new Date(latest.Created) <= after)) return null;
+    const message = await fetch(`${mailUrl}/api/v1/message/${latest.ID}`);
     const { Text, HTML } = (await message.json()) as { Text?: string; HTML?: string };
     return `${Text ?? ""} ${HTML ?? ""}`.match(/\b(\d{6})\b/)?.[1] ?? null;
   }, `an email OTP for ${email}`);
-}
-
-// WhatsApp OTP from the dry-run line the send-otp hook logs (lib/whatsapp.ts).
-export function whatsappOtp(phone: string): Promise<string> {
-  const pattern = new RegExp(`\\[whatsapp:dry-run\\] OTP for \\*+${phone.slice(-4)}: (\\d{6})`, "g");
-  return poll(() => {
-    const matches = [...readFileSync(SERVER_LOG, "utf8").matchAll(pattern)];
-    return matches.at(-1)?.[1] ?? null;
-  }, `a WhatsApp OTP for ******${phone.slice(-4)}`);
 }
 
 // The Turnstile widget (always-pass test key locally) writes its token into a hidden input;

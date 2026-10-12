@@ -34,50 +34,57 @@ export const emailSchema = z
 
 export const otpCodeSchema = z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code");
 
-export const OTP_CHANNELS = ["whatsapp", "email"] as const;
-export type OtpChannel = (typeof OTP_CHANNELS)[number];
+// Supabase hashes with bcrypt, which only reads the first 72 bytes.
+export const passwordSchema = z
+  .string()
+  .min(8, "Use at least 8 characters")
+  .max(72, "Use 72 characters or fewer");
 
-// "signin": signInWithOtp. "change": updateUser on the current (anonymous or signed-in) user.
-export const OTP_FLOWS = ["signin", "change"] as const;
-export type OtpFlow = (typeof OTP_FLOWS)[number];
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Enter your password").max(72, "Incorrect email or password."),
+});
 
-const captchaToken = z.string().min(1, "Please complete the security check").max(4096);
+export const signupSchema = z
+  .object({
+    fullName: z.string().trim().min(1, "Enter your name").max(120),
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((v) => v.password === v.confirmPassword, {
+    message: "The passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export const requestOtpSchema = z.discriminatedUnion("channel", [
-  z.object({ channel: z.literal("whatsapp"), identifier: phoneSchema, captchaToken }),
-  z.object({ channel: z.literal("email"), identifier: emailSchema, captchaToken }),
-]);
-export type RequestOtpInput = z.input<typeof requestOtpSchema>;
+export const newPasswordSchema = z
+  .object({ password: passwordSchema, confirmPassword: z.string() })
+  .refine((v) => v.password === v.confirmPassword, {
+    message: "The passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export const verifyOtpSchema = z.discriminatedUnion("channel", [
-  z.object({
-    channel: z.literal("whatsapp"),
-    identifier: phoneSchema,
-    code: otpCodeSchema,
-    flow: z.enum(OTP_FLOWS),
-    next: z.string().max(500).optional(),
-  }),
-  z.object({
-    channel: z.literal("email"),
-    identifier: emailSchema,
-    code: otpCodeSchema,
-    flow: z.enum(OTP_FLOWS),
-    next: z.string().max(500).optional(),
-  }),
-]);
-export type VerifyOtpInput = z.input<typeof verifyOtpSchema>;
+// Auth pages never make sense as a post-login destination.
+const AUTH_PATHS = ["/login", "/signup", "/forgot-password"];
 
 // Only same-origin relative paths; anything else falls back to the account page.
 export function safeNextPath(next: string | null | undefined, fallback = "/account"): string {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
     return fallback;
   }
-  if (/[\u0000-\u001f]/.test(next) || next.startsWith("/login")) return fallback;
+  if (/[\u0000-\u001f]/.test(next) || AUTH_PATHS.some((p) => next.startsWith(p))) {
+    return fallback;
+  }
   return next;
 }
 
 export const profileSchema = z.object({
   fullName: z.string().trim().min(1, "Enter your name").max(120),
+});
+
+// Contact number on the profile, used as the default at checkout. Empty clears it.
+export const profilePhoneSchema = z.object({
+  phone: z.union([z.literal("").transform(() => null), phoneSchema]),
 });
 
 export const marketingConsentSchema = z.object({ consent: z.boolean() });

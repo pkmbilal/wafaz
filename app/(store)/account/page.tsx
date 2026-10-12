@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import {
   AccountDeletion,
-  ContactRow,
   MarketingConsent,
   NameForm,
+  PhoneForm,
   SignOutButton,
 } from "@/components/store/account/profile-sections";
+import { ChangePasswordForm, EmailRow } from "@/components/store/account/sign-in-sections";
 import { Separator } from "@/components/ui/separator";
 import { getAccountProfile } from "@/lib/account/queries";
 import { requireUser } from "@/lib/auth/session";
@@ -20,16 +21,12 @@ export default async function AccountProfilePage() {
     <div className="flex flex-col gap-10">
       <Section title="Profile">
         <NameForm fullName={profile.fullName} />
+        <PhoneForm phone={profile.phone} />
       </Section>
 
-      <Section
-        title="Sign-in details"
-        description="Use either of these to sign in with a one-time code."
-      >
-        <div className="divide-y divide-border">
-          <ContactRow channel="whatsapp" value={profile.phone} />
-          <ContactRow channel="email" value={profile.email} />
-        </div>
+      <Section title="Sign-in details" description="You sign in with your email and password.">
+        <EmailRow email={profile.email} />
+        <ChangePasswordForm email={profile.email} />
       </Section>
 
       <Section title="Communication">

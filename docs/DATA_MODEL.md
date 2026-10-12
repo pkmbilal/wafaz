@@ -159,7 +159,8 @@ webhook_events
 auth_hook_events
   channel ('whatsapp'), recipient_hash text,   -- sha256 of the E.164 number, no raw PII
   status ('sent' | 'failed' | 'dry_run'), error text null, provider_message_id null
-  -- written by app/api/auth/send-otp; failures in the last 24 h feed "Needs attention"
+  -- unused since WhatsApp OTP login was removed; kept so history isn't lost.
+  -- TODO(owner): drop auth_hook_events in a later migration?
 ```
 
 ### Tax documents (immutable)
@@ -310,7 +311,7 @@ Customers never write directly to orders, payments or documents. All writes go t
 - **`refresh_product_search(product_id)`**
   - Rebuilds `products.search`. Called by triggers on `products` and `product_tags`.
 
-Profiles mirror verified contact details: an `AFTER UPDATE OF phone, email` trigger on `auth.users` copies them to `profiles` (a guest who upgrades via `updateUser` keeps their uid).
+Profiles mirror verified contact details: an `AFTER UPDATE OF phone, email` trigger on `auth.users` copies them to `profiles` (used when a customer changes their sign-in email). Customers edit `profiles.phone` directly; new profiles take `full_name` from sign-up metadata.
 
 **pg_cron jobs:** `expire_pending_orders()` every minute, `rate_limits` cleanup daily, and stale anonymous user cleanup daily (anonymous users older than 30 days with no orders).
 

@@ -48,8 +48,7 @@ export function anonClient(): TestClient {
   });
 }
 
-// A registered (non-anonymous) customer with a signed-in client. Passwords are a test harness
-// only; the app itself never offers password login.
+// A registered (non-anonymous) customer with a confirmed email, signed in with a password.
 export async function createCustomer(): Promise<{ id: string; email: string; client: TestClient }> {
   const email = `test-${randomUUID()}@example.com`;
   const password = `pw-${randomUUID()}`;

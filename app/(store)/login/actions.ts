@@ -7,33 +7,49 @@ import { clientIp } from "@/lib/request";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { reportError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
-import { emailSchema, phoneSchema, safeNextPath } from "@/lib/validators/auth";
+import { emailSchema, safeNextPath } from "@/lib/validators/auth";
 
-// Supabase Auth itself (signInWithOtp, updateUser, verifyOtp) is called from the browser so its
-// built-in per-IP limits see the customer's IP, not the server's. These actions add the app-side
-// rate limits (AGENTS.md §5.8) and the guest merge, which need the server.
+// Supabase Auth itself (signUp, signInWithPassword, verifyOtp, ...) is called from the browser so
+// its built-in per-IP limits see the customer's IP, not the server's, and passwords never pass
+// through our server. These actions add the app-side rate limits (AGENTS.md §5.8) and the guest
+// merge, which need the server.
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
-const prepareSchema = z.discriminatedUnion("channel", [
-  z.object({ channel: z.literal("whatsapp"), identifier: phoneSchema }),
-  z.object({ channel: z.literal("email"), identifier: emailSchema }),
-]);
+const prepareSchema = z.object({
+  // "login": a password attempt. "email": anything that sends an auth email (sign-up, resend, reset).
+  kind: z.enum(["login", "email"]),
+  email: emailSchema,
+});
 
-// Call before every OTP request. 5 per phone/email per hour, 20 per IP per hour.
-export async function prepareOtpRequest(input: unknown): Promise<ActionResult> {
+// Call before every password attempt (10 per email / 30 per IP per 15 min) and before every
+// auth email (5 per email / 20 per IP per hour).
+export async function prepareAuthRequest(input: unknown): Promise<ActionResult> {
   const parsed = prepareSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Check your details" };
   }
 
+  const { kind, email } = parsed.data;
   const ip = clientIp(await headers());
-  const [ipOk, identifierOk] = await Promise.all([
-    rateLimit("otp:ip", ip, RATE_LIMITS.otpPerIp),
-    rateLimit(`otp:${parsed.data.channel}`, parsed.data.identifier, RATE_LIMITS.otpPerIdentifier),
-  ]);
-  if (!ipOk || !identifierOk) {
-    return { ok: false, error: "Too many codes requested. Please try again in an hour." };
+  const [ipOk, emailOk] =
+    kind === "login"
+      ? await Promise.all([
+          rateLimit("login:ip", ip, RATE_LIMITS.loginPerIp),
+          rateLimit("login:email", email, RATE_LIMITS.loginPerEmail),
+        ])
+      : await Promise.all([
+          rateLimit("auth-email:ip", ip, RATE_LIMITS.authEmailPerIp),
+          rateLimit("auth-email:email", email, RATE_LIMITS.authEmailPerEmail),
+        ]);
+  if (!ipOk || !emailOk) {
+    return {
+      ok: false,
+      error:
+        kind === "login"
+          ? "Too many attempts. Please try again in 15 minutes."
+          : "Too many emails requested. Please try again in an hour.",
+    };
   }
   return { ok: true };
 }
@@ -44,8 +60,8 @@ const finishSchema = z.object({
   next: z.string().max(500).optional(),
 });
 
-// Runs after a successful verifyOtp. If the visitor was a guest and signed in to a different,
-// existing account, moves the guest's data across (merge_guest_into_user, service role).
+// Runs once the browser holds a real session (password sign-in, confirmed sign-up or password
+// reset). If the visitor was a guest, moves the guest's data across (merge_guest_into_user, service role).
 export async function finishLogin(
   input: unknown,
 ): Promise<{ ok: true; redirectTo: string } | { ok: false; error: string }> {

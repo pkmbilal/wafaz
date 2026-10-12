@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { OtpLogin } from "@/components/store/otp-login";
+import Link from "next/link";
+import { LoginForm } from "@/components/store/auth/login-form";
 import { getSessionUser } from "@/lib/auth/session";
 import { safeNextPath } from "@/lib/validators/auth";
 
@@ -24,16 +25,19 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       <div className="flex flex-col gap-2 text-center">
         <h1 className="text-4xl sm:text-5xl">Sign in</h1>
         <span aria-hidden className="mx-auto h-px w-12 bg-accent" />
-        <p className="text-sm text-muted-foreground">
-          No password needed. We&apos;ll send you a one-time code.
-        </p>
+        <p className="text-sm text-muted-foreground">Welcome back. Sign in with your email and password.</p>
       </div>
       <div className="border border-border bg-card p-6 sm:p-8">
-        <OtpLogin next={next} />
+        <LoginForm next={next} />
       </div>
-      <p className="text-center text-xs text-muted-foreground">
-        Signing in creates an account if you don&apos;t have one yet. Your cart and saved addresses
-        come with you.
+      <p className="text-center text-sm text-muted-foreground">
+        New here?{" "}
+        <Link
+          href={`/signup?next=${encodeURIComponent(next)}`}
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
+          Create an account
+        </Link>
       </p>
     </div>
   );

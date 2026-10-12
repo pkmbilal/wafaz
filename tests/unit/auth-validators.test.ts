@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   addressSchema,
   emailSchema,
+  loginSchema,
+  newPasswordSchema,
   normalizeIndianMobile,
-  requestOtpSchema,
+  passwordSchema,
+  profilePhoneSchema,
   safeNextPath,
+  signupSchema,
 } from "@/lib/validators/auth";
 
 describe("normalizeIndianMobile", () => {
@@ -37,20 +41,60 @@ describe("emailSchema", () => {
   });
 });
 
-describe("requestOtpSchema", () => {
-  it("normalises the phone for WhatsApp", () => {
-    const parsed = requestOtpSchema.parse({
-      channel: "whatsapp",
-      identifier: "98765 43210",
-      captchaToken: "t",
-    });
-    expect(parsed.identifier).toBe("+919876543210");
+describe("passwordSchema", () => {
+  it("needs 8 to 72 characters", () => {
+    expect(passwordSchema.safeParse("1234567").success).toBe(false);
+    expect(passwordSchema.safeParse("12345678").success).toBe(true);
+    expect(passwordSchema.safeParse("a".repeat(72)).success).toBe(true);
+    expect(passwordSchema.safeParse("a".repeat(73)).success).toBe(false);
+  });
+});
+
+describe("signupSchema", () => {
+  const valid = {
+    fullName: " Asha Nair ",
+    email: "Asha@Example.com",
+    password: "kurti-2026",
+    confirmPassword: "kurti-2026",
+  };
+
+  it("normalises name and email", () => {
+    const parsed = signupSchema.parse(valid);
+    expect(parsed.fullName).toBe("Asha Nair");
+    expect(parsed.email).toBe("asha@example.com");
   });
 
-  it("requires a captcha token", () => {
-    expect(
-      requestOtpSchema.safeParse({ channel: "email", identifier: "a@b.co", captchaToken: "" }).success,
-    ).toBe(false);
+  it("rejects mismatched passwords on the confirm field", () => {
+    const result = signupSchema.safeParse({ ...valid, confirmPassword: "kurti-2027" });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(["confirmPassword"]);
+  });
+
+  it("requires a name", () => {
+    expect(signupSchema.safeParse({ ...valid, fullName: "  " }).success).toBe(false);
+  });
+});
+
+describe("newPasswordSchema", () => {
+  it("checks length and match", () => {
+    expect(newPasswordSchema.safeParse({ password: "short", confirmPassword: "short" }).success).toBe(false);
+    expect(newPasswordSchema.safeParse({ password: "long-enough", confirmPassword: "different" }).success).toBe(false);
+    expect(newPasswordSchema.safeParse({ password: "long-enough", confirmPassword: "long-enough" }).success).toBe(true);
+  });
+});
+
+describe("loginSchema", () => {
+  it("requires a password", () => {
+    expect(loginSchema.safeParse({ email: "a@b.co", password: "" }).success).toBe(false);
+    expect(loginSchema.safeParse({ email: "a@b.co", password: "x" }).success).toBe(true);
+  });
+});
+
+describe("profilePhoneSchema", () => {
+  it("normalises a number and clears on empty", () => {
+    expect(profilePhoneSchema.parse({ phone: "98765 43210" }).phone).toBe("+919876543210");
+    expect(profilePhoneSchema.parse({ phone: "" }).phone).toBeNull();
+    expect(profilePhoneSchema.safeParse({ phone: "12345" }).success).toBe(false);
   });
 });
 
@@ -72,6 +116,8 @@ describe("safeNextPath", () => {
     "account",
     "/login",
     "/login?next=/account",
+    "/signup",
+    "/forgot-password?next=/cart",
     "/account\u0000",
   ])("falls back for %s", (input) => {
     expect(safeNextPath(input)).toBe("/account");

@@ -131,6 +131,26 @@ describe("auth_hook_events", () => {
 });
 
 describe("profile contact sync", () => {
+  it("copies the sign-up name and email onto a new profile", async () => {
+    const email = `signup-${crypto.randomUUID()}@example.com`;
+    const { data: created, error } = await adminClient().auth.admin.createUser({
+      email,
+      password: `pw-${crypto.randomUUID()}`,
+      user_metadata: { full_name: "  Asha Nair  " },
+    });
+    expect(error).toBeNull();
+    try {
+      const { data } = await adminClient()
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", created.user!.id)
+        .single();
+      expect(data).toEqual({ full_name: "Asha Nair", email });
+    } finally {
+      await deleteUsers(created.user?.id);
+    }
+  });
+
   it("copies a guest's verified phone and email onto the profile", async () => {
     const guest = await createGuest();
     try {

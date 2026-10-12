@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { authErrorMessage, isAlreadyLinked } from "@/lib/auth/errors";
+import { INVALID_LOGIN, authErrorMessage } from "@/lib/auth/errors";
 import { clientIp, hashIdentifier } from "@/lib/request";
-import { buildOtpTemplatePayload } from "@/lib/whatsapp-payload";
 
 describe("clientIp", () => {
   const headers = (h: Record<string, string>) => new Headers(h);
@@ -25,27 +24,6 @@ describe("hashIdentifier", () => {
   });
 });
 
-describe("buildOtpTemplatePayload", () => {
-  it("builds an authentication template with a copy-code button", () => {
-    expect(
-      buildOtpTemplatePayload({ toE164: "+919876543210", code: "123456", template: "otp", language: "en" }),
-    ).toEqual({
-      messaging_product: "whatsapp",
-      recipient_type: "individual",
-      to: "919876543210",
-      type: "template",
-      template: {
-        name: "otp",
-        language: { code: "en" },
-        components: [
-          { type: "body", parameters: [{ type: "text", text: "123456" }] },
-          { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: "123456" }] },
-        ],
-      },
-    });
-  });
-});
-
 describe("authErrorMessage", () => {
   it("maps known codes to customer copy", () => {
     expect(authErrorMessage({ code: "otp_expired" })).toMatch(/wrong or has expired/);
@@ -62,9 +40,14 @@ describe("authErrorMessage", () => {
     );
   });
 
-  it("detects contacts that already belong to another account", () => {
-    expect(isAlreadyLinked({ code: "phone_exists" })).toBe(true);
-    expect(isAlreadyLinked({ code: "email_exists" })).toBe(true);
-    expect(isAlreadyLinked({ code: "otp_expired" })).toBe(false);
+  it("uses one message for an unknown email and a wrong password", () => {
+    expect(authErrorMessage({ code: "invalid_credentials" })).toBe(INVALID_LOGIN);
+  });
+
+  it("explains password and confirmation problems", () => {
+    expect(authErrorMessage({ code: "weak_password" })).toMatch(/stronger password/);
+    expect(authErrorMessage({ code: "same_password" })).toMatch(/different/);
+    expect(authErrorMessage({ code: "email_not_confirmed" })).toMatch(/Confirm your email/);
+    expect(authErrorMessage({ code: "user_already_exists" })).toMatch(/Log in instead/);
   });
 });

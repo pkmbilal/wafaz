@@ -4,7 +4,7 @@ The current phase is set at the top of `AGENTS.md`. Only build features for that
 
 Legend: **[MIN]** = required to finish the phase. **[OPT]** = build only once that phase is approved.
 
-**Out of scope for every phase unless the owner changes it:** Cash on Delivery, SMS OTP, password login, social login, e-invoicing (IRN), international shipping, dark theme.
+**Out of scope for every phase unless the owner changes it:** Cash on Delivery, SMS / WhatsApp OTP login, social login, e-invoicing (IRN), international shipping, dark theme.
 
 ---
 
@@ -31,7 +31,7 @@ Legend: **[MIN]** = required to finish the phase. **[OPT]** = build only once th
 
 ### Auth and account
 - [MIN] Anonymous sign-in on first cart action (Turnstile captcha)
-- [MIN] Login with **WhatsApp OTP** (Send SMS Hook → Meta authentication template) or **email OTP** (6-digit code)
+- [MIN] Email + password sign-up (email confirmed by a 6-digit code), sign-in and password reset
 - [MIN] Guest-to-account upgrade and merge (see `AGENTS.md` §5.3)
 - [MIN] Account: profile, saved addresses, order history, order detail
 - [MIN] Guest order view through a signed link sent in the confirmation email

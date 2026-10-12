@@ -4,8 +4,12 @@ import { hashIdentifier } from "@/lib/request";
 
 // Limits from AGENTS.md §5.8. Keys hold a hash, never the raw phone or email.
 export const RATE_LIMITS = {
-  otpPerIdentifier: { max: 5, windowSeconds: 3600 },
-  otpPerIp: { max: 20, windowSeconds: 3600 },
+  // Customer password sign-in attempts. TODO(owner): confirm these limits.
+  loginPerEmail: { max: 10, windowSeconds: 900 },
+  loginPerIp: { max: 30, windowSeconds: 900 },
+  // Anything that sends an auth email: sign-up, confirmation resend, password reset.
+  authEmailPerEmail: { max: 5, windowSeconds: 3600 },
+  authEmailPerIp: { max: 20, windowSeconds: 3600 },
   couponApply: { max: 10, windowSeconds: 600 },
   orderCreate: { max: 5, windowSeconds: 600 },
   // TODO(owner): confirm the admin password sign-in limit (per email and per IP).

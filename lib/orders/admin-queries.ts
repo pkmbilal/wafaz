@@ -335,7 +335,6 @@ export type Dashboard = {
   stuckRefunds: { orderId: string; orderNumber: string; amountPaise: number; createdAt: string }[];
   failedWebhooks: { id: string; eventType: string; error: string | null; createdAt: string }[];
   failedEmails: { orderId: string | null; orderNumber: string | null; kind: string; error: string | null; createdAt: string }[];
-  failedOtpSends: number;
   lowStock: { variantId: string; productId: string; productTitle: string; sku: string; size: string; colour: string; available: number }[];
 };
 
@@ -353,7 +352,7 @@ export async function getDashboard(): Promise<Dashboard> {
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const stuckBefore = new Date(Date.now() - STUCK_REFUND_MINUTES * 60 * 1000).toISOString();
 
-  const [today, toShip, attention, stuck, webhooks, emails, otp, lowStock] = await Promise.all([
+  const [today, toShip, attention, stuck, webhooks, emails, lowStock] = await Promise.all([
     supabase.from("orders").select("total_paise").gte("created_at", istMidnight()).in("payment_status", PAID_STATUSES),
     supabase
       .from("orders")
@@ -388,16 +387,10 @@ export async function getDashboard(): Promise<Dashboard> {
       .gte("created_at", dayAgo)
       .order("created_at", { ascending: false })
       .limit(20),
-    // Owner only (RLS).
-    supabase
-      .from("auth_hook_events")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "failed")
-      .gte("created_at", dayAgo),
     supabase.rpc("admin_low_stock"),
   ]);
 
-  for (const result of [today, toShip, attention, stuck, webhooks, emails, otp, lowStock]) {
+  for (const result of [today, toShip, attention, stuck, webhooks, emails, lowStock]) {
     if (result.error) throw new Error(result.error.message);
   }
 
@@ -430,7 +423,6 @@ export async function getDashboard(): Promise<Dashboard> {
       error: e.error,
       createdAt: e.created_at,
     })),
-    failedOtpSends: otp.count ?? 0,
     lowStock: (lowStock.data ?? []).map((v) => ({
       variantId: v.variant_id,
       productId: v.product_id,
