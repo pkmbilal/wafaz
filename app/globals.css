@@ -52,6 +52,11 @@
 
   /* Sizing */
   --touch-target: 2.75rem; /* 44px minimum tap area */
+
+  /* Admin shell (TailAdmin-style layout, store colours) */
+  --sidebar-width: 18rem;
+  --sidebar-width-collapsed: 5.25rem;
+  --admin-header-height: 4.5rem;
 }
 
 @theme inline {
@@ -94,6 +99,9 @@
   --shadow-lifted: var(--shadow-lifted);
 
   --spacing-touch: var(--touch-target);
+  --spacing-sidebar: var(--sidebar-width);
+  --spacing-sidebar-collapsed: var(--sidebar-width-collapsed);
+  --spacing-admin-header: var(--admin-header-height);
 
   --tracking-label: var(--tracking-label);
 }

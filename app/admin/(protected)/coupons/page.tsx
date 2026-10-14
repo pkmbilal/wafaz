@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { TicketPercent } from "lucide-react";
 import { CouponDialog } from "@/components/admin/coupon-dialog";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/store/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -40,17 +41,22 @@ export default async function CouponsPage() {
   const canEdit = role === "owner";
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-semibold">Coupons</h1>
-          {!canEdit && <p className="text-sm text-muted-foreground">Only the owner can create or change coupons.</p>}
-        </div>
-        {canEdit && <CouponDialog />}
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader
+        title="Coupons"
+        meta={!canEdit ? <p>Only the owner can create or change coupons.</p> : undefined}
+        actions={canEdit ? <CouponDialog /> : undefined}
+      />
 
       {coupons.length === 0 ? (
-        <EmptyState icon={TicketPercent} title="No coupons yet" description="Create a code for a sale or a first-order offer." />
+        <AdminCard flush>
+          <EmptyState
+            icon={TicketPercent}
+            title="No coupons yet"
+            description="Create a code for a sale or a first-order offer."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>

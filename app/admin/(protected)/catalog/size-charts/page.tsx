@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Ruler } from "lucide-react";
+import { CatalogNav } from "@/components/admin/catalog-nav";
 import { DeleteButton } from "@/components/admin/delete-button";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { SizeChartDialog } from "@/components/admin/size-chart-dialog";
 import { EmptyState } from "@/components/store/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,14 +14,19 @@ export default async function SizeChartsPage() {
   const charts = await listAdminSizeCharts();
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-semibold">Size charts</h1>
-        <SizeChartDialog />
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader title="Size charts" crumbs={[{ label: "Catalog" }]} actions={<SizeChartDialog />} />
+      <CatalogNav />
 
       {charts.length === 0 ? (
-        <EmptyState icon={Ruler} title="No size charts yet" description="Add one and link it from your products." />
+        <AdminCard flush>
+          <EmptyState
+            icon={Ruler}
+            title="No size charts yet"
+            description="Add one and link it from your products."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>

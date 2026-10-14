@@ -11,6 +11,15 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -213,6 +222,30 @@ export function InteractiveShowcase() {
             onRemove={async () => {}}
           />
         </div>
+      </Section>
+
+      <Section title="Dropdown menu / Tooltip">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">Open menu</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>owner@example.com</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Store settings</DropdownMenuItem>
+            <DropdownMenuItem variant="destructive">Sign out</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost">Hover or focus me</Button>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>
+              Collapsed sidebar label
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </Section>
     </>
   );

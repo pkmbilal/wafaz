@@ -6,7 +6,7 @@ import { z } from "zod";
 import { CollectionForm } from "@/components/admin/collection-form";
 import { CollectionProducts } from "@/components/admin/collection-products";
 import { DeleteButton } from "@/components/admin/delete-button";
-import { AdminSection, BackLink } from "@/components/admin/page-parts";
+import { AdminSection, PageHeader } from "@/components/admin/page-parts";
 import { Button } from "@/components/ui/button";
 import { getAdminCollection } from "@/lib/catalog/admin-queries";
 
@@ -22,21 +22,21 @@ export default async function EditCollectionPage({ params }: PageProps<"/admin/c
   const { collection, products } = data;
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <BackLink href="/admin/catalog/collections">Collections</BackLink>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-semibold">{collection.title}</h1>
-          {collection.isActive && (
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader
+        title={collection.title}
+        crumbs={[{ label: "Catalog" }, { label: "Collections", href: "/admin/catalog/collections" }]}
+        actions={
+          collection.isActive ? (
             <Button asChild variant="link" size="sm" className="px-0">
               <Link href={`/collections/${collection.slug}`} target="_blank">
                 View in store <ExternalLink aria-hidden />
                 <span className="sr-only">(opens in a new tab)</span>
               </Link>
             </Button>
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <AdminSection id="details" title="Details">

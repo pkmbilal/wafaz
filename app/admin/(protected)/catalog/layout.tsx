@@ -1,10 +1,4 @@
-import { CatalogNav } from "@/components/admin/catalog-nav";
-
+// Each catalog list page renders the section tabs (CatalogNav) under its own page header.
 export default function CatalogLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex flex-col gap-6">
-      <CatalogNav />
-      {children}
-    </div>
-  );
+  return children;
 }

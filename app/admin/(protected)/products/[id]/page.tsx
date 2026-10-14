@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { z } from "zod";
 import { MediaManager } from "@/components/admin/media-manager";
-import { AdminSection, BackLink } from "@/components/admin/page-parts";
+import { AdminSection, PageHeader } from "@/components/admin/page-parts";
 import { ProductForm } from "@/components/admin/product-form";
 import { ProductCollectionsEditor, ProductTagsEditor } from "@/components/admin/product-links";
 import { StatusBadge } from "@/components/admin/status-badge";
@@ -45,32 +45,36 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
     .join("|");
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <BackLink href="/admin/products">Products</BackLink>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-semibold">{product.details.title}</h1>
-          <StatusBadge value={product.status} label={productStatusLabels[product.status]} />
-          {product.status === "active" && (
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader
+        title={product.details.title}
+        crumbs={[{ label: "Products", href: "/admin/products" }]}
+        meta={
+          <>
+            <StatusBadge value={product.status} label={productStatusLabels[product.status]} />
+            {product.status === "draft" && (
+              <p>
+                Draft: hidden from the store.{" "}
+                {activeVariants === 0
+                  ? "Add variants, then set the status to Active to publish."
+                  : product.media.length === 0
+                    ? "Add images, then set the status to Active to publish."
+                    : "Set the status to Active to publish."}
+              </p>
+            )}
+          </>
+        }
+        actions={
+          product.status === "active" ? (
             <Button asChild variant="link" size="sm" className="px-0">
               <Link href={`/products/${product.details.slug}`} target="_blank">
                 View in store <ExternalLink aria-hidden />
                 <span className="sr-only">(opens in a new tab)</span>
               </Link>
             </Button>
-          )}
-        </div>
-        {product.status === "draft" && (
-          <p className="text-sm text-muted-foreground">
-            Draft: hidden from the store.{" "}
-            {activeVariants === 0
-              ? "Add variants, then set the status to Active to publish."
-              : product.media.length === 0
-                ? "Add images, then set the status to Active to publish."
-                : "Set the status to Active to publish."}
-          </p>
-        )}
-      </div>
+          ) : undefined
+        }
+      />
 
       <AdminSection id="details" title="Details">
         <ProductForm

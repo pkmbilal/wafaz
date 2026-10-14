@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { GalleryHorizontal } from "lucide-react";
 import { BannerDialog } from "@/components/admin/banner-dialog";
+import { CatalogNav } from "@/components/admin/catalog-nav";
 import { DeleteButton } from "@/components/admin/delete-button";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Thumb } from "@/components/admin/thumb";
 import { EmptyState } from "@/components/store/empty-state";
@@ -30,14 +32,19 @@ export default async function BannersPage() {
   const banners = await listAdminBanners();
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-semibold">Banners</h1>
-        <BannerDialog />
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader title="Banners" crumbs={[{ label: "Catalog" }]} actions={<BannerDialog />} />
+      <CatalogNav />
 
       {banners.length === 0 ? (
-        <EmptyState icon={GalleryHorizontal} title="No banners yet" description="Add a hero banner for the home page." />
+        <AdminCard flush>
+          <EmptyState
+            icon={GalleryHorizontal}
+            title="No banners yet"
+            description="Add a hero banner for the home page."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>

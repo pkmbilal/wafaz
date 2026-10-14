@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LayoutGrid } from "lucide-react";
+import { CatalogNav } from "@/components/admin/catalog-nav";
 import { NewCollectionDialog } from "@/components/admin/collection-form";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Thumb } from "@/components/admin/thumb";
 import { EmptyState } from "@/components/store/empty-state";
@@ -14,14 +16,19 @@ export default async function CollectionsPage() {
   const collections = await listAdminCollections();
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-semibold">Collections</h1>
-        <NewCollectionDialog />
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader title="Collections" crumbs={[{ label: "Catalog" }]} actions={<NewCollectionDialog />} />
+      <CatalogNav />
 
       {collections.length === 0 ? (
-        <EmptyState icon={LayoutGrid} title="No collections yet" description="Group products into lists like New Arrivals." />
+        <AdminCard flush>
+          <EmptyState
+            icon={LayoutGrid}
+            title="No collections yet"
+            description="Group products into lists like New Arrivals."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>

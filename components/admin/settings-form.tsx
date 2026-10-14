@@ -5,6 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { FormField, fieldProps } from "@/components/admin/form-field";
+import { AdminCard } from "@/components/admin/page-parts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -144,12 +145,8 @@ export function SettingsForm({
 
 function Group({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 shadow-soft sm:p-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
-      </div>
+    <AdminCard title={title} description={description}>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
-    </section>
+    </AdminCard>
   );
 }

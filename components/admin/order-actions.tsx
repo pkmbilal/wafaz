@@ -70,8 +70,8 @@ export function OrderActions(p: OrderActionsProps) {
   const nothing = !canPack && !canShip && !shipped && !canCancel && !canPartial && !canReceiveRto;
 
   return (
-    <section aria-labelledby="actions-heading" className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-soft">
-      <h2 id="actions-heading" className="font-sans text-sm font-semibold tracking-normal">
+    <section aria-labelledby="actions-heading" className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 shadow-soft">
+      <h2 id="actions-heading" className="font-sans text-base font-medium tracking-normal">
         Actions
       </h2>
       {p.refundInProgress && (
