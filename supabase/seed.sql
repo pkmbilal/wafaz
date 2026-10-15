@@ -236,8 +236,7 @@ insert into public.pages (slug, title, body, is_published) values
   ('privacy-policy', 'Privacy Policy', 'TODO(owner): DPDP Act 2023 compliant privacy policy.', true),
   ('terms', 'Terms & Conditions', 'TODO(owner): terms of sale and use.', true),
   ('shipping-policy', 'Shipping Policy', 'TODO(owner): dispatch times, couriers, shipping charges.', true),
-  ('return-refund-policy', 'Return & Refund Policy', 'TODO(owner): return window, conditions, refund timelines.', true),
-  ('grievance-officer', 'Grievance Officer', 'TODO(owner): grievance officer name, contact and response timeline.', true)
+  ('return-refund-policy', 'Return & Refund Policy', 'TODO(owner): return window, conditions, refund timelines.', true)
 on conflict (slug) do nothing;
 
 -- ---------------------------------------------------------------------------

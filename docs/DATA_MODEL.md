@@ -21,7 +21,6 @@ This is the source of truth for the Phase 1 schema. Add tables for later phases 
 store_settings (singleton: id = 1)
   legal_name, trade_name, gstin, address_line1, address_line2, city, state, state_code ('32'),
   pincode, support_email, support_phone,
-  grievance_officer_name, grievance_officer_email, grievance_officer_phone,
   invoice_prefix ('INV'), credit_note_prefix ('CN'),
     -- check (char_length(prefix) <= 5) so 'PFX/26-27/00001' stays <= 16 chars
   tax_slab_basis ('inclusive' | 'taxable')   -- CA decides

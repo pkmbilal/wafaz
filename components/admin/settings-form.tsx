@@ -96,12 +96,6 @@ export function SettingsForm({
           )}
         </Group>
 
-        <Group title="Grievance officer" description="Required by the Consumer Protection (E-Commerce) Rules; shown on the grievance page.">
-          {input("grievanceOfficerName", "Name", { className: "sm:col-span-2", props: { maxLength: 120 } })}
-          {input("grievanceOfficerEmail", "Email", { props: { type: "email", maxLength: 254 } })}
-          {input("grievanceOfficerPhone", "Phone", { hint: "10 digits", props: { inputMode: "tel", maxLength: 14 } })}
-        </Group>
-
         <Group
           title="Tax and invoices"
           description="Changes apply to documents issued from now on. Issued invoices and credit notes never change. Confirm these with your CA."
