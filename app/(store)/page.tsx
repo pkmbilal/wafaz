@@ -15,7 +15,7 @@ export default async function HomePage() {
   return (
     <>
       <HeroSlider />
-      <TrustBadges />
+      <TrustBadges variant="band" className="md:hidden" />
 
       <section aria-labelledby="shop-by-category" className="mx-auto w-full max-w-7xl px-4 pt-20 lg:px-6 lg:pt-28">
         <SectionHeading id="shop-by-category" eyebrow="Explore" title="Shop by category" />
