@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AdminSection, BackLink } from "@/components/admin/page-parts";
+import { AdminSection, PageHeader } from "@/components/admin/page-parts";
 import { ProductForm } from "@/components/admin/product-form";
 import { listAdminCategories, listAdminSizeCharts, listTaxHsnCodes } from "@/lib/catalog/admin-queries";
 import { EMPTY_PRODUCT } from "@/lib/validators/admin-catalog";
@@ -14,11 +14,8 @@ export default async function NewProductPage() {
   ]);
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <BackLink href="/admin/products">Products</BackLink>
-        <h1 className="text-3xl font-semibold">New product</h1>
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader title="New product" crumbs={[{ label: "Products", href: "/admin/products" }]} />
       <AdminSection
         id="details"
         title="Details"

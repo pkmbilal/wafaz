@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { Heart } from "lucide-react";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { InteractiveShowcase } from "@/components/admin/showcase-interactive";
+import { StatusBadge } from "@/components/admin/status-badge";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -119,6 +121,26 @@ export default function ComponentShowcasePage() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
+      </section>
+
+      <section className="space-y-4 rounded-xl bg-secondary p-4 md:p-6">
+        <h2 className="text-2xl font-semibold">Admin page parts</h2>
+        <PageHeader
+          title="Orders"
+          crumbs={[{ label: "Sales" }]}
+          meta={<StatusBadge value="confirmed" label="Confirmed" />}
+          actions={<Button size="sm">Action</Button>}
+        />
+        <AdminCard id="showcase-card" title="Card title" description="Optional description." actions={<StatusBadge value="paid" label="Paid" />}>
+          <p className="text-sm">Card body on the admin canvas.</p>
+          <div className="flex flex-wrap gap-2">
+            <StatusBadge value="pending_payment" label="Pending payment" />
+            <StatusBadge value="shipped" label="Shipped" />
+            <StatusBadge value="delivered" label="Delivered" />
+            <StatusBadge value="failed" label="Failed" />
+            <StatusBadge value="hidden" label="Hidden" />
+          </div>
+        </AdminCard>
       </section>
 
       <InteractiveShowcase />

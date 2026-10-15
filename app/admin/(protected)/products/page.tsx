@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PackageSearch, Plus } from "lucide-react";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { ProductFilters } from "@/components/admin/product-filters";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Thumb } from "@/components/admin/thumb";
@@ -27,26 +28,35 @@ export default async function AdminProductsPage({ searchParams }: PageProps<"/ad
   ]);
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-baseline gap-4">
-          <h1 className="text-3xl font-semibold">Products</h1>
-          <p className="text-sm text-muted-foreground" aria-live="polite">
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader
+        title="Products"
+        meta={
+          <p aria-live="polite">
             {total} {total === 1 ? "product" : "products"}
           </p>
-        </div>
-        <Button asChild>
-          <Link href="/admin/products/new">
-            <Plus aria-hidden />
-            New product
-          </Link>
-        </Button>
-      </div>
+        }
+        actions={
+          <Button asChild>
+            <Link href="/admin/products/new">
+              <Plus aria-hidden />
+              New product
+            </Link>
+          </Button>
+        }
+      />
 
       <ProductFilters filters={filters} categories={categories.map((c) => ({ id: c.id, path: c.path }))} />
 
       {products.length === 0 ? (
-        <EmptyState icon={PackageSearch} title="No products match" description="Try clearing a filter or the search." />
+        <AdminCard flush>
+          <EmptyState
+            icon={PackageSearch}
+            title="No products match"
+            description="Try clearing a filter or the search."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>

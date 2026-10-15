@@ -37,7 +37,7 @@ export function ProductFilters({
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4" aria-busy={pending}>
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5 shadow-soft" aria-busy={pending}>
       <form
         role="search"
         className="flex gap-2"

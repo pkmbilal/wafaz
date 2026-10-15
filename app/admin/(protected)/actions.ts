@@ -1,9 +1,11 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { redirect } from "next/navigation";
 import type { ActionResult } from "@/lib/admin-actions";
 import { requireOwner } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { idSchema } from "@/lib/validators/admin-catalog";
 
 // Hundred years: Supabase's way of blocking a login for good.
@@ -42,4 +44,11 @@ export async function processDeletion(userId: unknown): Promise<ActionResult> {
 
   refresh();
   return { ok: true, message: orderCount === 0 ? "Account deleted" : "Account anonymised; orders kept for tax records" };
+}
+
+// Header user menu: ends the admin session and returns to the admin sign-in page.
+export async function adminSignOut(): Promise<void> {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/admin/login");
 }

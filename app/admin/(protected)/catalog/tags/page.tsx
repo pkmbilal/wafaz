@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Tags } from "lucide-react";
+import { CatalogNav } from "@/components/admin/catalog-nav";
 import { DeleteButton } from "@/components/admin/delete-button";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { TagDialog } from "@/components/admin/tag-dialog";
 import { EmptyState } from "@/components/store/empty-state";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,14 +14,19 @@ export default async function TagsPage() {
   const tags = await listAdminTags();
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-semibold">Tags</h1>
-        <TagDialog />
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader title="Tags" crumbs={[{ label: "Catalog" }]} actions={<TagDialog />} />
+      <CatalogNav />
 
       {tags.length === 0 ? (
-        <EmptyState icon={Tags} title="No tags yet" description="Tags help shoppers find products in search." />
+        <AdminCard flush>
+          <EmptyState
+            icon={Tags}
+            title="No tags yet"
+            description="Tags help shoppers find products in search."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>

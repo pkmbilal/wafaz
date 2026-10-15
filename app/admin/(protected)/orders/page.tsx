@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, PackageSearch } from "lucide-react";
 import { OrderFilters } from "@/components/admin/order-filters";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/store/empty-state";
 import { Button } from "@/components/ui/button";
@@ -20,18 +21,27 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
   const { orders, total, page, pageCount } = await listAdminOrders(filters);
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex items-baseline justify-between gap-4">
-        <h1 className="text-3xl font-semibold">Orders</h1>
-        <p className="text-sm text-muted-foreground" aria-live="polite">
-          {total} {total === 1 ? "order" : "orders"}
-        </p>
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader
+        title="Orders"
+        meta={
+          <p aria-live="polite">
+            {total} {total === 1 ? "order" : "orders"}
+          </p>
+        }
+      />
 
       <OrderFilters filters={filters} />
 
       {orders.length === 0 ? (
-        <EmptyState icon={PackageSearch} title="No orders match" description="Try clearing a filter or the search." />
+        <AdminCard flush>
+          <EmptyState
+            icon={PackageSearch}
+            title="No orders match"
+            description="Try clearing a filter or the search."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>

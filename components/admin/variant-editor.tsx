@@ -181,7 +181,7 @@ export function VariantEditor({
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">No variants yet. Generate them from sizes and colours.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="relative overflow-x-auto rounded-lg border border-border">
           <table className="w-full min-w-[60rem] text-sm">
             <caption className="sr-only">Variants</caption>
             <thead className="bg-muted/50 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase">

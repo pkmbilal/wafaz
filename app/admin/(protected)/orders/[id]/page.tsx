@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, ArrowLeft, ExternalLink, FileDown, Printer } from "lucide-react";
+import { AlertTriangle, ExternalLink, FileDown, Printer } from "lucide-react";
 import { z } from "zod";
 import { ClearStuckRefundButton, OrderActions, ResolveAttentionDialog } from "@/components/admin/order-actions";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -41,27 +41,24 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
   const tracking = order.shipment ? trackingUrl(order.shipment.courier, order.shipment.trackingNumber) : null;
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <Link
-          href="/admin/orders"
-          className="inline-flex min-h-touch w-fit items-center gap-1 rounded-sm text-sm text-muted-foreground outline-none hover:text-primary focus-visible:ring-3 focus-visible:ring-ring/60"
-        >
-          <ArrowLeft aria-hidden className="size-4" /> Orders
-        </Link>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-semibold">{order.number}</h1>
-          <StatusBadge value={order.orderStatus} label={orderStatusLabels[order.orderStatus]} />
-          <StatusBadge value={order.paymentStatus} label={paymentStatusLabels[order.paymentStatus]} />
-          <StatusBadge value={order.fulfillmentStatus} label={fulfillmentStatusLabels[order.fulfillmentStatus]} />
-        </div>
-        <p className="text-sm text-muted-foreground">Placed {dateTime.format(new Date(order.createdAt))}</p>
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader
+        title={order.number}
+        crumbs={[{ label: "Orders", href: "/admin/orders" }]}
+        meta={
+          <>
+            <StatusBadge value={order.orderStatus} label={orderStatusLabels[order.orderStatus]} />
+            <StatusBadge value={order.paymentStatus} label={paymentStatusLabels[order.paymentStatus]} />
+            <StatusBadge value={order.fulfillmentStatus} label={fulfillmentStatusLabels[order.fulfillmentStatus]} />
+            <span>Placed {dateTime.format(new Date(order.createdAt))}</span>
+          </>
+        }
+      />
 
       {order.needsAttention && (
         <div
           role="alert"
-          className="flex flex-col gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <p className="flex items-start gap-2 text-sm">
             <AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0 text-destructive" />
@@ -73,12 +70,9 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
         </div>
       )}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[1fr_20rem]">
+      <div className="grid items-start gap-4 md:gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="flex min-w-0 flex-col gap-6">
-          <section aria-labelledby="items-heading" className="flex flex-col gap-3">
-            <h2 id="items-heading" className="text-2xl font-semibold">
-              Items
-            </h2>
+          <AdminCard id="items" title="Items" flush>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -121,15 +115,15 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 <SummaryRow label="Total" value={formatInr(order.totalPaise)} />
               </TableFooter>
             </Table>
-          </section>
+          </AdminCard>
 
-          <section aria-labelledby="payments-heading" className="flex flex-col gap-3">
-            <h2 id="payments-heading" className="text-2xl font-semibold">
-              Payments and refunds
-            </h2>
-            <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-card text-sm">
+          <AdminCard id="payments" title="Payments and refunds" flush>
+            <ul className="flex flex-col divide-y divide-border text-sm">
+              {order.payments.length === 0 && order.refunds.length === 0 && (
+                <li className="px-5 py-4 text-muted-foreground sm:px-6">No payments yet.</li>
+              )}
               {order.payments.map((p) => (
-                <li key={p.razorpayOrderId} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                <li key={p.razorpayOrderId} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 sm:px-6">
                   <span>
                     Payment {p.razorpayPaymentId ?? <span className="text-muted-foreground">(not paid)</span>}
                     {p.method && <span className="text-muted-foreground"> · {p.method}</span>}
@@ -141,7 +135,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 </li>
               ))}
               {order.refunds.map((r) => (
-                <li key={r.id} className="flex flex-col gap-1 px-4 py-3">
+                <li key={r.id} className="flex flex-col gap-1 px-5 py-3 sm:px-6">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-medium">{refundKindLabels[r.kind] ?? r.kind}</span>
                     <span className="flex items-center gap-2">
@@ -171,12 +165,9 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 </li>
               ))}
             </ul>
-          </section>
+          </AdminCard>
 
-          <section aria-labelledby="timeline-heading" className="flex flex-col gap-3">
-            <h2 id="timeline-heading" className="text-2xl font-semibold">
-              Timeline
-            </h2>
+          <AdminCard id="timeline" title="Timeline">
             <ol className="flex flex-col gap-3 border-l border-border pl-4 text-sm">
               {order.events.map((e) => (
                 <li key={e.id} className="flex flex-col">
@@ -196,7 +187,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                 </li>
               ))}
             </ol>
-          </section>
+          </AdminCard>
         </div>
 
         <aside className="flex flex-col gap-4">
@@ -274,6 +265,9 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
                   </Button>
                 </>
               ) : null}
+              {!order.invoice && order.orderStatus !== "confirmed" && order.orderStatus !== "completed" && (
+                <p className="text-muted-foreground">Available once the order is paid.</p>
+              )}
             </div>
           </Card>
 
@@ -307,8 +301,8 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-1 rounded-lg border border-border bg-card p-4 text-sm">
-      <h2 className="mb-1 font-sans text-sm font-semibold tracking-normal">{title}</h2>
+    <section className="flex flex-col gap-1 rounded-xl border border-border bg-card p-5 text-sm shadow-soft">
+      <h2 className="mb-1 font-sans text-base font-medium tracking-normal">{title}</h2>
       {children}
     </section>
   );

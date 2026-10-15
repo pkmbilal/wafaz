@@ -2,12 +2,13 @@ import * as React from "react"
 import { cn } from "cn"
 
 // Admin data tables: scrolls sideways inside its container on phones, small-caps headers.
+// Inside an AdminCard the table drops its own frame and runs edge to edge.
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto rounded-lg border border-border bg-card"
+      className="relative w-full overflow-x-auto rounded-xl border border-border bg-card shadow-soft in-data-[slot=admin-card]:rounded-none in-data-[slot=admin-card]:border-0 in-data-[slot=admin-card]:shadow-none"
     >
       <table
         data-slot="table"
@@ -22,7 +23,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("bg-secondary/60 [&_tr]:border-b [&_tr]:border-border", className)}
+      className={cn("bg-secondary/50 [&_tr]:border-b [&_tr]:border-border", className)}
       {...props}
     />
   )
@@ -69,7 +70,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-3 text-left align-middle text-[0.6875rem] font-semibold tracking-wider whitespace-nowrap text-muted-foreground uppercase [&:has([role=checkbox])]:pr-0",
+        "h-11 px-4 text-left first:pl-5 last:pr-5 sm:first:pl-6 sm:last:pr-6 align-middle text-[0.6875rem] font-semibold tracking-wider whitespace-nowrap text-muted-foreground uppercase [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
@@ -82,7 +83,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "px-3 py-2.5 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+        "px-4 py-3 align-middle whitespace-nowrap first:pl-5 last:pr-5 sm:first:pl-6 sm:last:pr-6 [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}

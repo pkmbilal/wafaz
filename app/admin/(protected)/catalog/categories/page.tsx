@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { FolderTree } from "lucide-react";
+import { CatalogNav } from "@/components/admin/catalog-nav";
 import { CategoryDialog } from "@/components/admin/category-dialog";
 import { DeleteButton } from "@/components/admin/delete-button";
+import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { Thumb } from "@/components/admin/thumb";
 import { EmptyState } from "@/components/store/empty-state";
@@ -16,14 +18,23 @@ export default async function CategoriesPage() {
   const childCount = (id: string) => categories.filter((c) => c.parentId === id).length;
 
   return (
-    <main className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-semibold">Categories</h1>
-        <CategoryDialog categories={parents} />
-      </div>
+    <main className="flex flex-col gap-4 md:gap-6">
+      <PageHeader
+        title="Categories"
+        crumbs={[{ label: "Catalog" }]}
+        actions={<CategoryDialog categories={parents} />}
+      />
+      <CatalogNav />
 
       {categories.length === 0 ? (
-        <EmptyState icon={FolderTree} title="No categories yet" description="Add one to start building the store menu." />
+        <AdminCard flush>
+          <EmptyState
+            icon={FolderTree}
+            title="No categories yet"
+            description="Add one to start building the store menu."
+            className="bg-card"
+          />
+        </AdminCard>
       ) : (
         <Table>
           <TableHeader>
