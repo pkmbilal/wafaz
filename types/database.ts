@@ -1496,9 +1496,6 @@ export type Database = {
           created_at: string;
           credit_note_prefix: string;
           einvoice_enabled: boolean;
-          grievance_officer_email: string;
-          grievance_officer_name: string;
-          grievance_officer_phone: string;
           gstin: string | null;
           id: number;
           invoice_prefix: string;
@@ -1522,9 +1519,6 @@ export type Database = {
           created_at?: string;
           credit_note_prefix?: string;
           einvoice_enabled?: boolean;
-          grievance_officer_email: string;
-          grievance_officer_name: string;
-          grievance_officer_phone: string;
           gstin?: string | null;
           id?: number;
           invoice_prefix?: string;
@@ -1548,9 +1542,6 @@ export type Database = {
           created_at?: string;
           credit_note_prefix?: string;
           einvoice_enabled?: boolean;
-          grievance_officer_email?: string;
-          grievance_officer_name?: string;
-          grievance_officer_phone?: string;
           gstin?: string | null;
           id?: number;
           invoice_prefix?: string;
@@ -1686,9 +1677,6 @@ export type Database = {
           address_line1: string | null;
           address_line2: string | null;
           city: string | null;
-          grievance_officer_email: string | null;
-          grievance_officer_name: string | null;
-          grievance_officer_phone: string | null;
           gstin: string | null;
           legal_name: string | null;
           new_badge_days: number | null;

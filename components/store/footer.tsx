@@ -22,7 +22,6 @@ const POLICY_LINKS = [
   { label: "Terms & conditions", href: "/pages/terms" },
   { label: "Shipping policy", href: "/pages/shipping-policy" },
   { label: "Return & refund policy", href: "/pages/return-refund-policy" },
-  { label: "Grievance officer", href: "/pages/grievance-officer" },
 ];
 
 // Seller details are required on every page by the Consumer Protection (E-Commerce) Rules 2020.

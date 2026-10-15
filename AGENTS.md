@@ -94,7 +94,7 @@ app/
     orders/[id]/              # order view (owner session OR signed token link)
     account/                  # profile, orders, addresses
     login/
-    pages/[slug]/             # policies, about, contact, grievance officer
+    pages/[slug]/             # policies, about, contact
   admin/                      # role-protected, noindex, always dynamic
     dev/components/           # component showcase (dev only)
   api/
@@ -300,7 +300,7 @@ SHIPROCKET_EMAIL=
 SHIPROCKET_PASSWORD=
 ```
 
-Business details (legal name, GSTIN, address, grievance officer, invoice prefixes) live in the `store_settings` table, not here. Keep `.env.example` in sync.
+Business details (legal name, GSTIN, address, invoice prefixes) live in the `store_settings` table, not here. Keep `.env.example` in sync.
 
 ## 8. Testing Requirements
 

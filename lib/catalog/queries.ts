@@ -262,21 +262,15 @@ export async function getHomeData() {
   cacheLife("hours");
   cacheTag(cacheTags.catalog);
 
-  const supabase = createPublicClient();
-  const [banners, categories, newArrivals, bestSellers] = await Promise.all([
-    supabase
-      .from("banners")
-      .select("id, title, image_key, link")
-      .eq("placement", "hero")
-      .order("sort_order")
-      .then(check),
+  // TODO(owner): the home hero is static (components/store/hero-slides.ts), so banners managed in
+  // admin are not shown on the storefront. Remove the banner admin or bring it back into the hero.
+  const [categories, newArrivals, bestSellers] = await Promise.all([
     getNavCategories(),
     getListing({ collectionSlug: "new-arrivals" }, defaultFilters),
     getListing({ collectionSlug: "best-sellers" }, defaultFilters),
   ]);
 
   return {
-    banners,
     categories,
     newArrivals: newArrivals.items.slice(0, 8),
     bestSellers: bestSellers.items.slice(0, 8),

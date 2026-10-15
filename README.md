@@ -79,7 +79,7 @@ Hosting is Vercel **Pro** + Supabase **Pro** (Hobby forbids commercial use).
    - Image Resizing enabled.
    - Turnstile widget for the production hostname.
 7. **Store data (admin → Settings):**
-   - Legal name, GSTIN, address and grievance officer.
+   - Legal name, GSTIN and address.
    - Tax slab basis and shipping tax rate, confirmed by the CA.
    - Final text for every policy page.
    - Real products in place of the samples.

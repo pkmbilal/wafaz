@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Search, User } from "lucide-react";
+import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { CartButton } from "@/components/store/cart-button";
+import { HeaderShell } from "@/components/store/header-shell";
 import { LinkPending } from "@/components/store/link-pending";
 import { MobileMenu } from "@/components/store/mobile-menu";
 import type { NavCategory } from "@/lib/catalog/queries";
@@ -9,7 +11,13 @@ import { STORE_NAME } from "@/lib/site";
 
 export function Header({ categories }: { categories: NavCategory[] }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
+    <HeaderShell
+      className={cn(
+        "sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur transition-colors duration-300 supports-backdrop-filter:bg-background/85",
+        // Transparent over a full-bleed hero until the page scrolls.
+        "over-hero:not-data-scrolled:border-transparent over-hero:not-data-scrolled:bg-transparent over-hero:not-data-scrolled:backdrop-blur-none over-hero:not-data-scrolled:supports-backdrop-filter:bg-transparent",
+      )}
+    >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-2 px-4 lg:h-20 lg:px-6">
         <MobileMenu categories={categories} />
 
@@ -53,7 +61,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
           <CartButton />
         </div>
       </div>
-    </header>
+    </HeaderShell>
   );
 }
 

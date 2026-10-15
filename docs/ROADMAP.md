@@ -51,7 +51,7 @@ Legend: **[MIN]** = required to finish the phase. **[OPT]** = build only once th
 - [MIN] Admin marks orders delivered, or returned to origin (RTO), which restocks the items
 
 ### GST and documents
-- [MIN] `store_settings` for legal name, GSTIN, address, state code, invoice and credit-note prefixes, tax slab basis, shipping tax rate, grievance officer details
+- [MIN] `store_settings` for legal name, GSTIN, address, state code, invoice and credit-note prefixes, tax slab basis, shipping tax rate
 - [MIN] GST-inclusive back-calculation with CGST/SGST (Kerala) or IGST (other states)
 - [MIN] Gapless tax invoice numbering per financial year, issued when payment is captured
 - [MIN] Credit notes for every refund
@@ -72,7 +72,7 @@ Legend: **[MIN]** = required to finish the phase. **[OPT]** = build only once th
 - [MIN] Admin email when an order lands in "Needs attention"
 
 ### Legal, content and SEO
-- [MIN] Pages: About, Contact (seller legal name, address, phone, email), Privacy Policy (DPDP Act 2023), Terms, Shipping Policy, Return & Refund Policy, **Grievance Officer** (name, contact, response timeline)
+- [MIN] Pages: About, Contact (seller legal name, address, phone, email), Privacy Policy (DPDP Act 2023), Terms, Shipping Policy, Return & Refund Policy
 - [MIN] Footer shows seller details and links to the policies (Consumer Protection (E-Commerce) Rules 2020)
 - [MIN] Marketing consent checkbox, separate from transactional messages and unticked by default
 - [MIN] Account deletion request from the account page (handled by admin; orders and invoices are kept for tax records)

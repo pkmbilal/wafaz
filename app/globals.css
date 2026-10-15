@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Pages with a full-bleed hero mark it with data-header-overlay; the header then sits on top of it. */
+@custom-variant over-hero (&:where(body:has([data-header-overlay]) *));
+
 /*
  * Brand tokens. Every colour, font, radius and shadow used in the UI comes from here.
  * Light theme only in Phase 1.
