@@ -4,7 +4,6 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroSlider } from "@/components/store/hero-slider";
 import { ProductGrid } from "@/components/store/product-card";
-import { TrustBadges } from "@/components/store/trust-badges";
 import { getHomeData } from "@/lib/catalog/queries";
 import { mediaUrl } from "@/lib/r2";
 import type { ProductCardData } from "@/lib/catalog/queries";
@@ -15,7 +14,6 @@ export default async function HomePage() {
   return (
     <>
       <HeroSlider />
-      <TrustBadges variant="band" className="md:hidden" />
 
       <section aria-labelledby="shop-by-category" className="mx-auto w-full max-w-7xl px-4 pt-20 lg:px-6 lg:pt-28">
         <SectionHeading id="shop-by-category" eyebrow="Explore" title="Shop by category" />

@@ -97,6 +97,8 @@ export function HeroSlider() {
               inert={i !== selected}
               className="pl-0"
             >
+              {/* Phones: the hero is a full screen tall but starts below the announcement bar, and the fixed
+                  bottom nav (h-16) covers its foot, so pb-32 keeps the copy and badges in view. */}
               <div className="relative h-svh max-h-240 min-h-144">
                 <SlideImage slide={slide} eager={i === 0} />
                 {/* Scrim: keeps the copy legible on any photo (bottom on phones, left side above). */}
@@ -104,7 +106,7 @@ export function HeroSlider() {
                   aria-hidden
                   className="absolute inset-0 bg-linear-to-t from-background from-25% via-background/70 via-50% to-transparent to-75% md:bg-linear-to-r md:from-background/85 md:from-10% md:via-background/40 md:via-45% md:to-transparent md:to-65%"
                 />
-                <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col justify-end px-4 pt-24 pb-24 md:justify-center md:pb-40 lg:px-6 lg:pt-28">
+                <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col justify-end px-4 pt-24 pb-32 md:justify-center md:pb-40 lg:px-6 lg:pt-28">
                   <div className="flex max-w-xl flex-col items-start gap-4 md:gap-6">
                     <p className="eyebrow text-muted-foreground">{slide.eyebrow}</p>
                     <Heading className="text-5xl leading-tight sm:text-6xl lg:text-7xl">
@@ -118,6 +120,8 @@ export function HeroSlider() {
                         <ArrowRight aria-hidden className="size-4 transition-transform group-hover/button:translate-x-0.5" />
                       </Link>
                     </Button>
+                    {/* Phones: badges sit right under the button (tablet and up shows them in the fixed overlay). */}
+                    <TrustBadges className="md:hidden" />
                   </div>
                 </div>
               </div>
@@ -130,7 +134,7 @@ export function HeroSlider() {
       {/* Tablet and up only: phones swipe between slides. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 max-md:hidden">
         <div className="mx-auto flex w-full max-w-7xl items-end justify-between px-4 pb-10 lg:px-6">
-          <TrustBadges variant="overlay" className="pointer-events-auto" />
+          <TrustBadges className="pointer-events-auto" />
           <div className="pointer-events-auto flex items-center rounded-full bg-background/80 p-0.5 backdrop-blur-sm">
             <CarouselPrevious variant="ghost" className="static my-0 bg-transparent backdrop-blur-none" />
             <div className="flex items-center">
