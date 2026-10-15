@@ -15,7 +15,7 @@ export default async function HomePage() {
     <>
       <HeroSlider />
 
-      <section aria-labelledby="shop-by-category" className="mx-auto w-full max-w-7xl px-4 pt-20 lg:px-6 lg:pt-28">
+      <section aria-labelledby="shop-by-category" className="mx-auto w-full max-w-7xl px-4 pt-12 sm:pt-20 lg:px-6 lg:pt-28">
         <SectionHeading id="shop-by-category" eyebrow="Explore" title="Shop by category" />
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5">
           {categories.map((c) => (
