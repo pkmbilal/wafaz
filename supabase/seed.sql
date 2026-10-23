@@ -1,31 +1,8 @@
--- Dev seed data: tax slabs, shipping zones, categories, size chart, tags, collections,
--- 20 sample products with variants and placeholder media, banners and policy pages.
+-- Dev-only seed data: categories, size chart, tags, collections, 20 sample products with variants and
+-- placeholder media, banners and test coupons. Never run on production.
+-- Tax slabs, shipping zones and policy pages live in production-seed.sql, which `supabase db reset`
+-- loads first (config.toml [db.seed]).
 -- Idempotent: safe to run more than once. Images use `seed/…` keys served from public/seed/.
-
--- ---------------------------------------------------------------------------
--- Tax slabs
--- TODO(owner): CA to confirm the HSN list and rates. Seeded from the apparel rules effective
--- 22 Sep 2025: 5% up to ₹2,500 per piece, 18% above.
--- ---------------------------------------------------------------------------
-insert into public.tax_slabs (hsn_code, min_unit_paise, max_unit_paise, rate_bps, effective_from)
-select hsn, 0, 250000, 500, date '2025-09-22' from unnest(array['6104', '6204', '6206', '6211', '6214']) as hsn
-where not exists (select 1 from public.tax_slabs t where t.hsn_code = hsn and t.min_unit_paise = 0);
-
-insert into public.tax_slabs (hsn_code, min_unit_paise, max_unit_paise, rate_bps, effective_from)
-select hsn, 250000, null, 1800, date '2025-09-22' from unnest(array['6104', '6204', '6206', '6211', '6214']) as hsn
-where not exists (select 1 from public.tax_slabs t where t.hsn_code = hsn and t.min_unit_paise = 250000);
-
--- ---------------------------------------------------------------------------
--- Shipping zones
--- TODO(owner): confirm courier rates and the free-shipping threshold.
--- ---------------------------------------------------------------------------
-insert into public.shipping_zones (name, state_codes, base_paise, base_weight_grams, per_additional_500g_paise, free_above_paise)
-values
-  ('Kerala', array['32'], 5000, 500, 3000, 149900),
-  ('Rest of India',
-   (select array_agg(code order by code) from public.indian_states where code <> '32'),
-   8000, 500, 4000, 149900)
-on conflict (name) do nothing;
 
 -- ---------------------------------------------------------------------------
 -- Categories
@@ -224,20 +201,6 @@ select * from (values
   ('Everyday Cotton Kurtis', 'seed/banner-02.webp', '/collections/best-sellers', 2)
 ) as b (title, image_key, link, sort_order)
 where not exists (select 1 from public.banners);
-
--- ---------------------------------------------------------------------------
--- Policy and content pages
--- TODO(owner): replace every body with the final legal text (DPDP Act 2023, Consumer Protection
--- (E-Commerce) Rules 2020) before launch.
--- ---------------------------------------------------------------------------
-insert into public.pages (slug, title, body, is_published) values
-  ('about', 'About Us', 'TODO(owner): brand story.', true),
-  ('contact', 'Contact Us', 'TODO(owner): contact details are also shown from store settings.', true),
-  ('privacy-policy', 'Privacy Policy', 'TODO(owner): DPDP Act 2023 compliant privacy policy.', true),
-  ('terms', 'Terms & Conditions', 'TODO(owner): terms of sale and use.', true),
-  ('shipping-policy', 'Shipping Policy', 'TODO(owner): dispatch times, couriers, shipping charges.', true),
-  ('return-refund-policy', 'Return & Refund Policy', 'TODO(owner): return window, conditions, refund timelines.', true)
-on conflict (slug) do nothing;
 
 -- ---------------------------------------------------------------------------
 -- Test coupons (dev only)

@@ -56,9 +56,10 @@ The first run needs `pnpm exec playwright install chromium`.
 
 Hosting is Vercel **Pro** + Supabase **Pro** (Hobby forbids commercial use).
 
-1. **Supabase:** apply all migrations in `supabase/migrations/` (do not run `seed.sql` sample products in production;
-   seed only tax slabs, shipping zones, states and settings rows). Enable backups or PITR. Confirm the pg_cron jobs
-   `expire-pending-orders`, `stale-anonymous-users-cleanup` and `rate-limits-cleanup` are active.
+1. **Supabase:** `supabase link --project-ref <ref>`, then `supabase db push` to apply the migrations (they create
+   the states and the `store_settings` row). Then run `supabase/production-seed.sql` once in the SQL editor: tax
+   slabs, shipping zones and the policy page rows. **Never run `seed.sql` on production**; it holds the dev sample
+   products, banners and test coupons. Enable backups or PITR.
 2. **Supabase Auth:**
    - Site URL and redirect URLs set to the production domain.
    - Anonymous sign-ins on, with Turnstile captcha (production secret).
@@ -78,10 +79,16 @@ Hosting is Vercel **Pro** + Supabase **Pro** (Hobby forbids commercial use).
    - CORS rule on the public bucket allowing `PUT` from the site origin.
    - Image Resizing enabled.
    - Turnstile widget for the production hostname.
-7. **Store data (admin → Settings):**
-   - Legal name, GSTIN and address.
-   - Tax slab basis and shipping tax rate, confirmed by the CA.
-   - Final text for every policy page.
-   - Real products in place of the samples.
+7. **Store data:**
    - An owner account: create the user with an email + password (Supabase dashboard → Authentication → Add user,
      auto-confirm), then set `profiles.role = 'owner'` for it. Admins sign in at `/admin/login`.
+   - Admin → Settings: legal name, GSTIN and address; tax slab basis and shipping tax rate, confirmed by the CA.
+   - Policy page text: Phase 1 has no page editor, so set it in the SQL editor, e.g.
+     `update public.pages set body = '…' where slug = 'privacy-policy';`
+     <!-- TODO(owner): should a page editor in admin be added in a later phase? -->
+   - Tax slabs and shipping zones (if the CA or courier rates differ from `production-seed.sql`): edit the rows in
+     the Supabase table editor.
+   - Real products, categories, collections and banners from admin; final hero photos and copy in
+     `components/store/hero-slides.ts`.
+8. **Launch check:** run `supabase/snippets/launch-check.sql` in the SQL editor. Every row should be `ok = true`.
+   Then place one live order (UPI), check the confirmation email and invoice, and refund it from admin.
