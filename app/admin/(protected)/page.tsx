@@ -16,6 +16,7 @@ import { listDeletionRequests } from "@/lib/admin/queries";
 import { requireAdmin } from "@/lib/auth/guards";
 import { formatInr } from "@/lib/format";
 import { getDashboard } from "@/lib/orders/admin-queries";
+import { NEW_ORDERS_HREF } from "@/lib/orders/labels";
 
 // Admin dashboard: today's numbers, what needs shipping, low stock and the "Needs attention" panel
 // (AGENTS.md §5.12). Webhook failures are visible to the owner only (RLS).
@@ -45,7 +46,7 @@ export default async function AdminDashboardPage() {
           icon={Truck}
           label="To ship"
           value={String(d.toShip)}
-          href="/admin/orders?order=confirmed&fulfillment=unfulfilled"
+          href={NEW_ORDERS_HREF}
           tone={d.toShip > 0 ? "warning" : "neutral"}
         />
         <Metric

@@ -1,6 +1,7 @@
 import "server-only";
 import type { FulfillmentStatus, OrderAddress, OrderStatus, PaymentStatus } from "@/lib/orders/queries";
 import { createClient } from "@/lib/supabase/server";
+import { isNewOrder } from "@/lib/orders/labels";
 import { type Courier, isCourier } from "@/lib/shipping/tracking";
 import { ORDERS_PAGE_SIZE, type OrderFilters } from "@/lib/validators/admin-orders";
 
@@ -27,11 +28,12 @@ export type AdminOrderListItem = Statuses & {
   email: string;
   totalPaise: number;
   needsAttention: boolean;
+  isNew: boolean;
 };
 
 export async function listAdminOrders(
   filters: OrderFilters,
-): Promise<{ orders: AdminOrderListItem[]; total: number; page: number; pageCount: number }> {
+): Promise<{ orders: AdminOrderListItem[]; total: number; newCount: number; page: number; pageCount: number }> {
   const supabase = await createClient();
   const page = filters.page ?? 1;
   const from = (page - 1) * ORDERS_PAGE_SIZE;
@@ -54,8 +56,16 @@ export async function listAdminOrders(
     query = query.or(`number.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`);
   }
 
-  const { data, count, error } = await query;
+  // Shown in the header whatever the filters, so it's counted separately.
+  const newOrders = supabase
+    .from("orders")
+    .select("id", { count: "exact", head: true })
+    .eq("order_status", "confirmed")
+    .eq("fulfillment_status", "unfulfilled");
+
+  const [{ data, count, error }, { count: newCount, error: newError }] = await Promise.all([query, newOrders]);
   if (error) throw new Error(error.message);
+  if (newError) throw new Error(newError.message);
   const total = count ?? 0;
   return {
     orders: data.map((o) => ({
@@ -69,8 +79,13 @@ export async function listAdminOrders(
       paymentStatus: o.payment_status as PaymentStatus,
       fulfillmentStatus: o.fulfillment_status as FulfillmentStatus,
       needsAttention: o.needs_attention,
+      isNew: isNewOrder({
+        orderStatus: o.order_status as OrderStatus,
+        fulfillmentStatus: o.fulfillment_status as FulfillmentStatus,
+      }),
     })),
     total,
+    newCount: newCount ?? 0,
     page,
     pageCount: Math.max(1, Math.ceil(total / ORDERS_PAGE_SIZE)),
   };

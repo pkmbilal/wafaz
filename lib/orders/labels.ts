@@ -26,6 +26,13 @@ export const fulfillmentStatusLabels: Record<FulfillmentStatus, string> = {
   returned_to_origin: "Returned (RTO)",
 };
 
+// "New" in admin: paid and confirmed, but not packed yet. Packing clears it.
+export function isNewOrder(o: { orderStatus: OrderStatus; fulfillmentStatus: FulfillmentStatus }): boolean {
+  return o.orderStatus === "confirmed" && o.fulfillmentStatus === "unfulfilled";
+}
+
+export const NEW_ORDERS_HREF = "/admin/orders?order=confirmed&fulfillment=unfulfilled";
+
 export const refundKindLabels: Record<string, string> = {
   auto: "Automatic (late payment)",
   partial: "Partial refund",

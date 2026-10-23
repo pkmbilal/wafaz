@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cn } from "cn";
 import { AlertTriangle, PackageSearch } from "lucide-react";
 import { OrderFilters } from "@/components/admin/order-filters";
 import { AdminCard, PageHeader } from "@/components/admin/page-parts";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { EmptyState } from "@/components/store/empty-state";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatInr } from "@/lib/format";
 import { listAdminOrders } from "@/lib/orders/admin-queries";
-import { fulfillmentStatusLabels, orderStatusLabels, paymentStatusLabels } from "@/lib/orders/labels";
+import {
+  fulfillmentStatusLabels,
+  NEW_ORDERS_HREF,
+  orderStatusLabels,
+  paymentStatusLabels,
+} from "@/lib/orders/labels";
 import { type OrderFilters as Filters, orderFiltersSchema } from "@/lib/validators/admin-orders";
 
 export const metadata: Metadata = { title: "Orders" };
@@ -18,7 +25,7 @@ const dateTime = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeSty
 
 export default async function AdminOrdersPage({ searchParams }: PageProps<"/admin/orders">) {
   const filters = orderFiltersSchema.parse(await searchParams);
-  const { orders, total, page, pageCount } = await listAdminOrders(filters);
+  const { orders, total, newCount, page, pageCount } = await listAdminOrders(filters);
 
   return (
     <main className="flex flex-col gap-4 md:gap-6">
@@ -27,6 +34,17 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
         meta={
           <p aria-live="polite">
             {total} {total === 1 ? "order" : "orders"}
+            {newCount > 0 && (
+              <>
+                {" · "}
+                <Link
+                  href={NEW_ORDERS_HREF}
+                  className="rounded-sm font-semibold text-primary outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/60"
+                >
+                  {newCount} new
+                </Link>
+              </>
+            )}
           </p>
         }
       />
@@ -57,8 +75,8 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
           </TableHeader>
           <TableBody>
             {orders.map((o) => (
-              <TableRow key={o.id}>
-                <TableCell>
+              <TableRow key={o.id} className={cn(o.isNew && "bg-primary/5 hover:bg-primary/10")}>
+                <TableCell className={cn(o.isNew && "shadow-[inset_3px_0_0_var(--color-primary)]")}>
                   <Link
                     href={`/admin/orders/${o.id}`}
                     className="inline-flex min-h-touch items-center gap-1.5 rounded-sm font-semibold text-primary outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/60"
@@ -68,6 +86,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps<"/admi
                     )}
                     {o.number}
                   </Link>
+                  {o.isNew && <Badge className="ml-2 align-middle">New</Badge>}
                 </TableCell>
                 <TableCell className="text-muted-foreground">{dateTime.format(new Date(o.createdAt))}</TableCell>
                 <TableCell>
