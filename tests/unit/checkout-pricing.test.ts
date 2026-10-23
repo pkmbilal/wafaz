@@ -141,7 +141,7 @@ describe("shipping", () => {
   });
 
   it("builds tracking links", () => {
-    expect(dtdcTrackingUrl(" D123 ")).toContain("D123");
+    expect(dtdcTrackingUrl()).toMatch(/^https:\/\/www\.dtdc\.com\/track/);
     expect(indiaPostTrackingUrl()).toMatch(/^https:\/\/www\.indiapost\.gov\.in/);
   });
 });

@@ -119,10 +119,10 @@ describe("PDFs", () => {
 });
 
 describe("tracking links", () => {
-  it("links DTDC by consignment number and India Post to its tracking page", () => {
-    expect(trackingUrl("dtdc", " D12 34 ")).toContain(encodeURIComponent("D12 34"));
-    expect(trackingUrl("india_post", "EE123456789IN")).toMatch(/^https:\/\/www\.indiapost\.gov\.in\//);
-    expect(trackingUrl("other", "X1")).toBeNull();
+  it("links DTDC and India Post to their tracking pages", () => {
+    expect(trackingUrl("dtdc")).toMatch(/^https:\/\/www\.dtdc\.com\/track/);
+    expect(trackingUrl("india_post")).toMatch(/^https:\/\/www\.indiapost\.gov\.in\//);
+    expect(trackingUrl("other")).toBeNull();
   });
 
   it("recognises couriers", () => {

@@ -38,7 +38,7 @@ export default async function AdminOrderPage({ params }: PageProps<"/admin/order
 
   const isOwner = role === "owner";
   const initiated = order.refunds.find((r) => r.status === "initiated");
-  const tracking = order.shipment ? trackingUrl(order.shipment.courier, order.shipment.trackingNumber) : null;
+  const tracking = order.shipment ? trackingUrl(order.shipment.courier) : null;
 
   return (
     <main className="flex flex-col gap-4 md:gap-6">

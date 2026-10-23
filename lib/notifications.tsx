@@ -221,7 +221,7 @@ export async function sendNotice(notice: Notice, deps: Deps): Promise<EmailOutco
               customerName={customerName}
               courierName={courierLabels[courier] ?? shipment.courier}
               trackingNumber={shipment.tracking_number}
-              trackingUrl={trackingUrl(courier, shipment.tracking_number) ?? links.orderUrl}
+              trackingUrl={trackingUrl(courier) ?? links.orderUrl}
               orderUrl={links.orderUrl}
               seller={settings}
             />

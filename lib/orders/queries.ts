@@ -112,7 +112,7 @@ function shipmentView(row: OrderRow["shipments"]): OrderView["shipment"] {
   return {
     courierName: courierLabels[courier],
     trackingNumber: s.tracking_number,
-    trackingUrl: trackingUrl(courier, s.tracking_number),
+    trackingUrl: trackingUrl(courier),
   };
 }
 
