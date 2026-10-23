@@ -52,6 +52,24 @@ The first run needs `pnpm exec playwright install chromium`.
   it delivers a signed `payment.captured` webhook (the source of truth) and returns a signed success response. Then
   the test checks the order is confirmed and the invoice PDF downloads.
 
+### Manual Razorpay test-mode run
+
+To click through checkout by hand with the real Razorpay popup, webhooks and refunds, without real money and without
+touching the hosted DB:
+
+1. `supabase start` and `supabase db reset`. Create an owner in Studio (`http://127.0.0.1:54323`) and set
+   `profiles.role = 'owner'`.
+2. Create a gitignored `.env.development.local`. `next dev` loads it before `.env.local`. Put the local stack URL and
+   keys in it, the always-pass Turnstile keys (`1x00000000000000000000AA` / `1x0000000000000000000000000000000AA`),
+   Razorpay **test** keys, a random `RAZORPAY_WEBHOOK_SECRET`, and an empty `RESEND_API_KEY` (emails are logged).
+   Delete the file to go back to the hosted project.
+3. `pnpm dev`, then `cloudflared tunnel --url http://localhost:3000`. Browse at `http://localhost:3000`; only the
+   webhook goes through the tunnel.
+4. Razorpay dashboard in **Test mode** → Webhooks: `https://<tunnel>.trycloudflare.com/api/razorpay/webhook` with
+   the same secret, for `payment.captured`, `payment.failed`, `refund.processed`, `refund.failed`. The quick-tunnel
+   URL changes on every run.
+5. Pay with UPI `success@razorpay` / `failure@razorpay` or card `4111 1111 1111 1111`.
+
 ## Deploying (production)
 
 Hosting is Vercel **Pro** + Supabase **Pro** (Hobby forbids commercial use).

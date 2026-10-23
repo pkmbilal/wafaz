@@ -141,8 +141,8 @@ describe("shipping", () => {
   });
 
   it("builds tracking links", () => {
-    expect(dtdcTrackingUrl(" D123 ")).toContain("D123");
-    expect(indiaPostTrackingUrl()).toMatch(/^https:\/\/www\.indiapost\.gov\.in/);
+    expect(dtdcTrackingUrl(" D123 ")).toBe("https://www.dtdc.com/track-your-shipment/?awb=D123");
+    expect(indiaPostTrackingUrl()).toBe("https://www.indiapost.gov.in/#trackandtrace");
   });
 });
 
